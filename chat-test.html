@@ -28,7 +28,7 @@
         .section {
             flex: 1;
             min-width: 300px;
-            margin: 0; 
+            margin: 0; /* Remove margin from here */
             padding: 15px;
             border: 1px solid #ddd;
             border-radius: 5px;
@@ -52,21 +52,21 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            flex-wrap: wrap; 
+            flex-wrap: wrap; /* Allow wrapping for smaller screens */
         }
         .input-group label {
             min-width: 100px;
             font-weight: bold;
         }
-        input, button, select {
+        input, button, select, textarea { /* Added textarea */
             padding: 8px;
             border: 1px solid #ddd;
             border-radius: 4px;
-            box-sizing: border-box;
+            box-sizing: border-box; /* Include padding and border in element's total width and height */
         }
-        input[type="text"], input[type="password"] {
+        input[type="text"], input[type="password"], textarea { /* Added textarea */
             flex: 1;
-            min-width: 200px;
+            min-width: 200px; /* Adjusted min-width */
         }
         button {
             background: #007bff;
@@ -93,14 +93,14 @@
             padding: 5px;
             border-left: 3px solid #007bff;
             background: #f8f9fa;
-            word-wrap: break-word;
+            word-wrap: break-word; /* Ensure long messages wrap */
         }
         .message-item.sent {
-            border-left-color: #28a745;
+            border-left-color: #28a745; /* Green for sent messages */
             background: #e6ffe6;
         }
         .message-item.received {
-            border-left-color: #ffc107;
+            border-left-color: #ffc107; /* Yellow for received messages */
             background: #fff8e6;
         }
         .timestamp {
@@ -125,7 +125,7 @@
             border-radius: 5px;
             max-height: 200px;
             overflow-y: auto;
-            white-space: pre-wrap;
+            white-space: pre-wrap; /* Preserve whitespace and wrap */
             font-family: monospace;
             font-size: 0.9em;
         }
@@ -137,12 +137,12 @@
             margin-bottom: 15px;
         }
         .chat-room-section {
-            flex-basis: 100%;
+            flex-basis: 100%; /* Take full width */
             background: #e0f7fa;
             border-color: #00bcd4;
         }
         .chat-messages-display {
-            height: 400px;
+            height: 400px; /* Taller for chat history */
             border: 1px solid #a7d9e2;
             background: #ffffff;
             padding: 10px;
@@ -182,6 +182,70 @@
             color: #888;
             text-align: right;
         }
+        .message-read-status {
+            font-size: 0.7em;
+            color: #007bff; /* Blue for read status */
+            text-align: right;
+            margin-top: 2px;
+        }
+        .message-product-id {
+            font-size: 0.75em;
+            color: #999;
+            margin-top: 2px;
+        }
+        .message-type-system {
+            background-color: #e0f7fa;
+            color: #00796b;
+            text-align: center;
+            font-style: italic;
+            border-left: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            align-self: center; /* Center system messages */
+            max-width: 90%;
+        }
+        .message-type-offer {
+            background-color: #ffe0b2;
+            border-left-color: #ff9800;
+        }
+        .offer-status-pending { color: #ff9800; font-weight: bold; }
+        .offer-status-accepted { color: #4CAF50; font-weight: bold; }
+        .offer-status-rejected { color: #F44336; font-weight: bold; }
+        .offer-actions button {
+            margin-top: 5px;
+            margin-right: 5px;
+            padding: 5px 10px;
+            font-size: 0.8em;
+        }
+        .offer-actions .accept-btn { background-color: #4CAF50; }
+        .offer-actions .reject-btn { background-color: #F44336; }
+        .offer-actions .accept-btn:hover { background-color: #388E3C; }
+        .offer-actions .reject-btn:hover { background-color: #D32F2F; }
+
+        .online-users-list {
+            font-size: 0.85em;
+            color: #555;
+            margin-top: 10px;
+            padding-top: 5px;
+            border-top: 1px solid #eee;
+        }
+        .online-user-item {
+            display: inline-block;
+            margin-right: 10px;
+            background-color: #e6ffe6;
+            padding: 3px 8px;
+            border-radius: 10px;
+            color: #155724;
+        }
+        .offline-user-item {
+            display: inline-block;
+            margin-right: 10px;
+            background-color: #f8d7da;
+            padding: 3px 8px;
+            border-radius: 10px;
+            color: #721c24;
+        }
+
         @media (max-width: 768px) {
             .container {
                 flex-direction: column;
@@ -198,7 +262,7 @@
                 min-width: unset;
                 width: 100%;
             }
-            input[type="text"], input[type="password"] {
+            input[type="text"], input[type="password"], textarea {
                 width: 100%;
                 min-width: unset;
             }
@@ -236,12 +300,16 @@
                 <label>Current User ID:</label>
                 <input type="text" id="currentUserIdDisplay" placeholder="Your User ID" readonly style="background: #f8f9fa;">
             </div>
+            <div class="input-group">
+                <label>Current Username:</label>
+                <input type="text" id="currentUsernameDisplay" placeholder="Your Username" readonly style="background: #f8f9fa;">
+            </div>
         </div>
 
         <div class="section api-section">
             <h2>🔗 REST API Testing</h2>
             
-            <h3>Create Chat</h3>
+            <h3>Create Direct Chat</h3>
             <div class="input-group">
                 <label>Recipient ID:</label>
                 <input type="text" id="recipientId" placeholder="Enter recipient user ID" value="hS25329WNmPd1xzYknizpYpBaSx2">
@@ -260,14 +328,96 @@
                 <button onclick="getUserChats()">Get My Chats</button>
             </div>
 
+            <h3>Create Transaction (Buyer Initiated)</h3>
+            <div class="input-group">
+                <label>Product ID:</label>
+                <input type="text" id="transactionProductId" placeholder="Product ID to buy">
+            </div>
+            <div class="input-group">
+                <label>Delivery Method:</label>
+                <select id="deliveryMethod">
+                    <option value="instant">instant</option>
+                    <option value="middleman">middleman</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>Notes:</label>
+                <input type="text" id="transactionNotes" placeholder="Optional notes for transaction">
+            </div>
+            <div class="input-group">
+                <label></label>
+                <button onclick="createTransaction()">Create Transaction</button>
+            </div>
+
+            <h3>Transaction Management (Admin/Seller)</h3>
+            <div class="input-group">
+                <label>Transaction ID:</label>
+                <input type="text" id="manageTransactionId" placeholder="Enter Transaction ID">
+            </div>
+            
+            <h4>Process Payment (Buyer Action)</h4>
+            <div class="input-group">
+                <label>Delivery Method:</label>
+                <select id="processPaymentDeliveryMethod"> <option value="instant">Instant (Direct Payment)</option>
+                    <option value="middleman">Middleman (Confirm Initiated)</option>
+                </select>
+            </div>
+            <div class="input-group" id="paymentDetailsGroup">
+                <label>Payment Method:</label>
+                <input type="text" id="paymentMethod" value="credit_card" placeholder="e.g., credit_card, bank_transfer">
+            </div>
+            <div class="input-group" id="cardNumberGroup">
+                <label>Card Number:</label>
+                <input type="text" id="paymentDetailsCard" placeholder="Optional card number">
+            </div>
+            <div class="input-group">
+                <label></label>
+                <button onclick="processPayment()">Process Payment</button>
+            </div>
+
+            <h4>Admin/Middleman Actions</h4>
+            <div class="input-group">
+                <label>Admin ID (Your ID):</label>
+                <input type="text" id="adminIdForTransaction" placeholder="Your Admin User ID">
+            </div>
+            <div class="input-group">
+                <label></label>
+                <button onclick="assignMiddleman()">Assign Middleman</button>
+                <button onclick="confirmMiddlemanPayment()">Confirm Middleman Payment</button> <button onclick="getAdminTransactions()">List Admin Transactions</button>
+                <button onclick="getPendingMiddlemanTransactions()">List Pending Middleman</button>
+                <button onclick="getTransactionDetails()">Get Transaction Details</button>
+            </div>
+
+
             <h3>Send Message to Chat (REST)</h3>
             <div class="input-group">
                 <label>Chat ID:</label>
                 <input type="text" id="chatIdForMessage" placeholder="Enter chat ID">
             </div>
             <div class="input-group">
-                <label>Message:</label>
-                <input type="text" id="messageContent" placeholder="Type your message">
+                <label>Message Content:</label>
+                <textarea id="messageContent" placeholder="Type your message"></textarea>
+            </div>
+            <div class="input-group">
+                <label>Message Type:</label>
+                <select id="messageType">
+                    <option value="text">text</option>
+                    <option value="image">image</option>
+                    <option value="offer">offer</option>
+                    <option value="system">system (Backend only)</option>
+                </select>
+            </div>
+            <div class="input-group" id="attachmentUrlGroup" style="display: none;">
+                <label>Attachment URL:</label>
+                <input type="text" id="attachmentUrl" placeholder="https://example.com/image.jpg">
+            </div>
+            <div class="input-group" id="offerDetailsGroup" style="display: none;">
+                <label>Offer Price:</label>
+                <input type="number" id="offerPrice" placeholder="e.g., 100.00">
+            </div>
+            <div class="input-group">
+                <label>Message Product ID:</label>
+                <input type="text" id="messageProductId" placeholder="Optional Product ID for message">
             </div>
             <div class="input-group">
                 <label></label>
@@ -299,7 +449,8 @@
             <div class="input-group">
                 <label>Active Chat ID:</label>
                 <input type="text" id="activeChatId" placeholder="Enter Chat ID to view"> 
-                <button onclick="setActiveChatId()">Set Active Chat</button> <button onclick="loadChatRoomMessages()">Load Chat Messages</button>
+                <button onclick="setActiveChatId()">Set Active Chat</button> 
+                <button onclick="loadChatRoomMessages()">Load Chat Messages</button>
                 <button onclick="markChatAsRead()">Mark as Read</button>
             </div>
             <div class="chat-messages-display" id="chatRoomMessages">
@@ -310,7 +461,9 @@
                 <button id="sendChatRoomMessage" onclick="sendChatRoomMessage()" disabled>Send</button>
             </div>
             <div id="typingIndicator" style="font-style: italic; color: #888; display: none;"></div>
-            <div id="onlineStatusIndicator" style="font-style: italic; color: #888;"></div>
+            <div id="onlineUsersDisplay" class="online-users-list">
+                <strong>Online in this chat:</strong> <span id="onlineUsersList"></span>
+            </div>
         </div>
     </div>
 
@@ -318,8 +471,10 @@
         let ws = null;
         let currentToken = '';
         let currentUserId = '';
-        let currentUsername = ''; // To display sender name in chat
-        let typingTimeout = null; // For typing indicator
+        let currentUsername = ''; 
+        let typingTimeout = null; 
+        let activeChatParticipants = []; // To store participants of the active chat
+        let onlineParticipants = new Map(); // To track who is online in the active chat (userId -> {username, is_online})
 
         // Authentication
         async function login() {
@@ -343,14 +498,11 @@
                 const data = await response.json();
                 
                 if (response.ok && (data.success || data.token)) {
-                    // Handle new format (with success wrapper)
                     if (data.success) {
                         currentToken = data.data.token;
                         currentUserId = data.data.user.id;
                         currentUsername = data.data.user.username;
-                    }
-                    // Handle current format (direct response)
-                    else if (data.token) {
+                    } else if (data.token) {
                         currentToken = data.token;
                         currentUserId = data.user.id;
                         currentUsername = data.user.username;
@@ -358,6 +510,7 @@
                     
                     document.getElementById('token').value = currentToken;
                     document.getElementById('currentUserIdDisplay').value = currentUserId;
+                    document.getElementById('currentUsernameDisplay').value = currentUsername; // Display username
                     document.getElementById('loginStatus').textContent = `✅ Logged in as: ${currentUsername} (${currentUserId})`;
                     document.getElementById('loginStatus').style.color = 'green';
                     
@@ -407,16 +560,263 @@
                 
                 if (data.success && data.data.id) {
                     document.getElementById('chatIdForMessage').value = data.data.id;
-                    document.getElementById('activeChatId').value = data.data.id; // Set active chat ID
-                    loadChatRoomMessages(); // Load messages for the newly created/reused chat
-                    if (ws && ws.readyState === WebSocket.OPEN) {
-                        sendWSMessage({ type: "join_chat_room", chat_id: data.data.id }); // Notify backend of active chat room
-                    }
+                    document.getElementById('activeChatId').value = data.data.id; 
+                    setActiveChatId(); // Use setActiveChatId to also join room and load details
                 }
             } catch (error) {
                 addRestResult('Create Chat Error', { error: error.message });
             }
         }
+
+        // New: Create Transaction
+        async function createTransaction() {
+            if (!currentToken) {
+                alert('Please login first');
+                return;
+            }
+            const productId = document.getElementById('transactionProductId').value;
+            const deliveryMethod = document.getElementById('deliveryMethod').value;
+            const notes = document.getElementById('transactionNotes').value;
+
+            if (!productId || !deliveryMethod) {
+                alert('Please enter Product ID and select Delivery Method.');
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:8080/v1/transactions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + currentToken
+                    },
+                    body: JSON.stringify({
+                        product_id: productId,
+                        delivery_method: deliveryMethod,
+                        notes: notes || undefined
+                    })
+                });
+                const data = await response.json();
+                addRestResult('Create Transaction', data);
+                if (data.success && data.data.id) {
+                    document.getElementById('manageTransactionId').value = data.data.id; // Auto-fill for management
+                    alert(`Transaction created! ID: ${data.data.id}. Status: ${data.data.status}. Delivery: ${data.data.delivery_method}.`);
+                }
+            } catch (error) {
+                addRestResult('Create Transaction Error', { error: error.message });
+            }
+        }
+
+        // New: Process Payment Function
+        async function processPayment() {
+            if (!currentToken) {
+                alert('Please login first (as Buyer)');
+                return;
+            }
+            const transactionId = document.getElementById('manageTransactionId').value;
+            const processPaymentDeliveryMethod = document.getElementById('processPaymentDeliveryMethod').value;
+            let paymentMethod = document.getElementById('paymentMethod').value; // Can be overridden for middleman
+            let paymentDetails = {}; // Can be overridden for middleman
+
+            if (!transactionId) {
+                alert('Please enter Transaction ID.');
+                return;
+            }
+
+            if (processPaymentDeliveryMethod === 'instant') {
+                if (!paymentMethod) {
+                    alert('Please enter Payment Method for Instant Delivery.');
+                    return;
+                }
+                const cardNumber = document.getElementById('paymentDetailsCard').value;
+                if (paymentMethod === 'credit_card' && cardNumber) {
+                    paymentDetails = { card_number: cardNumber, expiry_date: '12/25', cvv: '123' }; // Dummy details
+                } else if (paymentMethod === 'bank_transfer') {
+                    paymentDetails = { bank_name: 'Dummy Bank', account_number: '1234567890' };
+                }
+            } else { // middleman
+                // For middleman, payment method and details are not sent via this API
+                // Buyer just confirms they've initiated payment to middleman
+                paymentMethod = "initiated_to_middleman"; // Hardcode for middleman flow
+                paymentDetails = { note: "Buyer has initiated payment to middleman directly." };
+            }
+
+
+            try {
+                const response = await fetch(`http://localhost:8080/v1/transactions/${transactionId}/payment`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + currentToken
+                    },
+                    body: JSON.stringify({
+                        payment_method: paymentMethod,
+                        payment_details: paymentDetails
+                    })
+                });
+                const data = await response.json();
+                addRestResult('Process Payment', data); // Display response
+                if (data.success) {
+                    alert(`Payment processed for transaction ${transactionId}! New Status: ${data.data.status}. Payment Status: ${data.data.payment_status}.`);
+                } else {
+                    alert(`Failed to process payment: ${data.error?.message || 'Unknown error'}`); // Show error if not successful
+                }
+            } catch (error) {
+                console.error('Process Payment fetch error:', error); // Log fetch errors
+                addRestResult('Process Payment Error', { error: error.message });
+            }
+        }
+
+        // New: Confirm Middleman Payment Function
+        async function confirmMiddlemanPayment() {
+            if (!currentToken) {
+                alert('Please login first (as Admin)');
+                return;
+            }
+            const transactionId = document.getElementById('manageTransactionId').value;
+            if (!transactionId) {
+                alert('Please enter Transaction ID.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:8080/v1/admin/transactions/${transactionId}/confirm-payment`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + currentToken
+                    },
+                    body: JSON.stringify({})
+                });
+                const data = await response.json();
+                addRestResult('Confirm Middleman Payment', data);
+                if (data.success) {
+                    alert(`Middleman payment confirmed for transaction ${transactionId}! New Status: ${data.data.status}.`);
+                } else {
+                    alert(`Failed to confirm middleman payment: ${data.error?.message || 'Unknown error'}`); // Show error if not successful
+                }
+            } catch (error) {
+                console.error('Confirm Middleman Payment fetch error:', error); // Log fetch errors
+                addRestResult('Confirm Middleman Payment Error', { error: error.message });
+            }
+        }
+
+        // New: Assign Middleman
+        async function assignMiddleman() {
+            if (!currentToken) {
+                alert('Please login first (as Admin)');
+                return;
+            }
+            const transactionId = document.getElementById('manageTransactionId').value;
+            const adminId = document.getElementById('adminIdForTransaction').value || currentUserId; 
+
+            if (!transactionId || !adminId) {
+                alert('Please enter Transaction ID and Admin ID.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:8080/v1/admin/transactions/${transactionId}/assign`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + currentToken
+                    },
+                    body: JSON.stringify({}) 
+                });
+                const data = await response.json();
+                addRestResult('Assign Middleman', data);
+                if (data.success) {
+                    alert(`Middleman ${adminId} assigned to transaction ${transactionId}! Chat ID: ${data.data.middleman_chat_id || 'N/A'}`);
+                    if (data.data.middleman_chat_id) {
+                        document.getElementById('activeChatId').value = data.data.middleman_chat_id;
+                        document.getElementById('chatIdForMessage').value = data.data.middleman_chat_id;
+                        setActiveChatId(); // Use setActiveChatId to also join room and load details
+                    }
+                } else {
+                    alert(`Failed to assign middleman: ${data.error?.message || 'Unknown error'}`); // Show error if not successful
+                }
+            } catch (error) {
+                console.error('Assign Middleman fetch error:', error); // Log fetch errors
+                addRestResult('Assign Middleman Error', { error: error.message });
+            }
+        }
+
+        // New: Get Admin Transactions
+        async function getAdminTransactions() {
+            if (!currentToken) {
+                alert('Please login first (as Admin)');
+                return;
+            }
+            try {
+                const response = await fetch('http://localhost:8080/v1/admin/transactions', {
+                    headers: {
+                        'Authorization': 'Bearer ' + currentToken
+                    }
+                });
+                const data = await response.json();
+                addRestResult('Get Admin Transactions', data);
+            } catch (error) {
+                console.error('Get Admin Transactions fetch error:', error); // Log fetch errors
+                addRestResult('Get Admin Transactions Error', { error: error.message });
+            }
+        }
+
+        // New: Get Pending Middleman Transactions
+        async function getPendingMiddlemanTransactions() {
+            if (!currentToken) {
+                alert('Please login first (as Admin)');
+                return;
+            }
+            try {
+                const response = await fetch('http://localhost:8080/v1/admin/transactions/pending-middleman', {
+                    headers: {
+                        'Authorization': 'Bearer ' + currentToken
+                    }
+                });
+                const data = await response.json();
+                addRestResult('Get Pending Middleman Transactions', data);
+            } catch (error) {
+                console.error('Get Pending Middleman Transactions fetch error:', error); // Log fetch errors
+                addRestResult('Get Pending Middleman Transactions Error', { error: error.message });
+            }
+        }
+
+        // New: Get Transaction Details
+        async function getTransactionDetails() {
+            if (!currentToken) {
+                alert('Please login first');
+                return;
+            }
+            const transactionId = document.getElementById('manageTransactionId').value;
+            if (!transactionId) {
+                alert('Please enter Transaction ID.');
+                return;
+            }
+            try {
+                const response = await fetch(`http://localhost:8080/v1/transactions/${transactionId}`, {
+                    headers: {
+                        'Authorization': 'Bearer ' + currentToken
+                    }
+                });
+                const data = await response.json();
+                addRestResult('Get Transaction Details', data);
+                if (data.success && data.data.middleman_chat_id) {
+                    alert(`Transaction ${transactionId} Middleman Chat ID: ${data.data.middleman_chat_id}`);
+                    document.getElementById('activeChatId').value = data.data.middleman_chat_id;
+                    document.getElementById('chatIdForMessage').value = data.data.middleman_chat_id;
+                    setActiveChatId(); // Use setActiveChatId to also join room and load details
+                } else if (data.success) {
+                    alert(`Transaction ${transactionId} has no Middleman Chat ID yet.`);
+                } else {
+                    alert(`Failed to get transaction details: ${data.error?.message || 'Unknown error'}`); // Show error if not successful
+                }
+            } catch (error) {
+                console.error('Get Transaction Details fetch error:', error); // Log fetch errors
+                addRestResult('Get Transaction Details Error', { error: error.message });
+            }
+        }
+
 
         async function getUserChats() {
             if (!currentToken) {
@@ -434,15 +834,14 @@
                 const data = await response.json();
                 addRestResult('Get User Chats', data);
                 if (data.success && data.data.items && data.data.items.length > 0) {
-                    // Optionally set the first chat as active for testing
                     document.getElementById('activeChatId').value = data.data.items[0].id;
                     document.getElementById('chatIdForMessage').value = data.data.items[0].id;
-                    loadChatRoomMessages();
-                    if (ws && ws.readyState === WebSocket.OPEN) {
-                        sendWSMessage({ type: "join_chat_room", chat_id: data.data.items[0].id }); // Notify backend of active chat room
-                    }
+                    setActiveChatId(); // Use setActiveChatId to also join room and load details
+                } else if (!data.success) {
+                    alert(`Failed to get user chats: ${data.error?.message || 'Unknown error'}`); // Show error if not successful
                 }
             } catch (error) {
+                console.error('Get User Chats fetch error:', error); // Log fetch errors
                 addRestResult('Get Chats Error', { error: error.message });
             }
         }
@@ -455,10 +854,26 @@
 
             const chatId = document.getElementById('chatIdForMessage').value;
             const content = document.getElementById('messageContent').value;
+            const messageType = document.getElementById('messageType').value;
+            const attachmentUrl = document.getElementById('attachmentUrl').value;
+            const offerPrice = document.getElementById('offerPrice').value;
+            const messageProductId = document.getElementById('messageProductId').value;
 
             if (!chatId || !content) {
                 alert('Please enter chat ID and message content');
                 return;
+            }
+
+            let messageMetadata = {};
+            if (messageType === 'offer') {
+                if (!offerPrice) {
+                    alert('Please enter an offer price.');
+                    return;
+                }
+                messageMetadata = {
+                    price: parseFloat(offerPrice),
+                    status: "pending"
+                };
             }
 
             try {
@@ -470,7 +885,10 @@
                     },
                     body: JSON.stringify({
                         content: content,
-                        type: 'text'
+                        type: messageType,
+                        attachment_url: (messageType === 'image' || messageType === 'file') ? attachmentUrl || undefined : undefined,
+                        metadata: (messageType === 'offer') ? messageMetadata : undefined,
+                        product_id: messageProductId || undefined
                     })
                 });
 
@@ -479,10 +897,15 @@
                 
                 if (data.success) {
                     document.getElementById('messageContent').value = '';
-                    // No need to manually add to chat room, WebSocket will handle it for others
-                    // For self, optimistic update is in sendChatRoomMessage
+                    document.getElementById('attachmentUrl').value = '';
+                    document.getElementById('offerPrice').value = '';
+                    document.getElementById('messageProductId').value = '';
+                    sendWSMessage({ type: "typing_stop", chat_id: chatId });
+                } else {
+                    alert('Failed to send message: ' + (data.error?.message || 'Unknown error'));
                 }
             } catch (error) {
+                console.error('Send Message (REST) fetch error:', error); // Log fetch errors
                 addRestResult('Send Message (REST) Error', { error: error.message });
             }
         }
@@ -509,6 +932,7 @@
                 const data = await response.json();
                 addRestResult('Get Messages (REST)', data);
             } catch (error) {
+                console.error('Get Messages (REST) fetch error:', error); // Log fetch errors
                 addRestResult('Get Messages (REST) Error', { error: error.message });
             }
         }
@@ -536,7 +960,6 @@
                     
                     addWSMessage('System: Connected to WebSocket');
 
-                    // If an active chat is already set, join the room
                     const activeChatId = document.getElementById('activeChatId').value;
                     if (activeChatId) {
                         sendWSMessage({ type: "join_chat_room", chat_id: activeChatId });
@@ -556,12 +979,15 @@
                             addWSMessage('✅ Message confirmed received by server');
                         } else if (data.type === 'new_message') {
                             addWSMessage('📨 New message notification: ' + JSON.stringify(data, null, 2));
-                            // Automatically add to chat room if it's the active chat
                             const activeChatId = document.getElementById('activeChatId').value;
                             if (activeChatId === data.chat_id) {
-                                addMessageToChatRoom(data.message, data.sender);
-                                // Mark message as read when received and displayed
-                                sendWSMessage({ type: "mark_message_read", chat_id: data.chat_id, data: { message_id: data.message.id } });
+                                // Check if message already exists (optimistic update might have added it)
+                                if (!document.querySelector(`.chat-message-bubble[data-message-id="${data.message.id}"]`)) {
+                                    addMessageToChatRoom(data.message, data.sender);
+                                }
+                                if (data.message.sender_id !== currentUserId) { 
+                                    sendWSMessage({ type: "mark_message_read", chat_id: data.chat_id, data: { message_id: data.message.id } });
+                                }
                             }
                         } else if (data.type === 'typing_indicator') {
                             const typingIndicatorEl = document.getElementById('typingIndicator');
@@ -575,20 +1001,26 @@
                                 }
                             }
                         } else if (data.type === 'user_presence') {
-                            const onlineStatusIndicatorEl = document.getElementById('onlineStatusIndicator');
+                            // Handle user_presence for multiple users
                             const activeChatId = document.getElementById('activeChatId').value;
-                            if (activeChatId === data.chat_id && data.user_id !== currentUserId) {
-                                if (data.is_online) {
-                                    onlineStatusIndicatorEl.textContent = `${data.username} is online.`;
-                                    onlineStatusIndicatorEl.style.color = 'green';
-                                } else {
-                                    onlineStatusIndicatorEl.textContent = `${data.username} is offline.`;
-                                    onlineStatusIndicatorEl.style.color = 'red';
-                                }
+                            if (activeChatId === data.chat_id) {
+                                updateOnlineUsers(data.user_id, data.username, data.is_online);
                             }
                         } else if (data.type === 'message_read_receipt') {
                             addWSMessage(`✔✔ Message ${data.message_id} read by ${data.reader_id}`);
-                            // In a real app, you'd update the UI of the sent message here
+                            const messageElement = document.querySelector(`.chat-message-bubble[data-message-id="${data.message_id}"]`);
+                            if (messageElement) {
+                                let readStatusEl = messageElement.querySelector('.message-read-status');
+                                if (!readStatusEl) {
+                                    readStatusEl = document.createElement('div');
+                                    readStatusEl.className = 'message-read-status';
+                                    messageElement.appendChild(readStatusEl);
+                                }
+                                readStatusEl.textContent = '✔✔ Read';
+                            }
+                        } else if (data.type === 'offer_update') {
+                            addWSMessage(`💰 Offer ${data.message_id} status: ${data.status} by ${data.accepted_by || data.rejected_by}`);
+                            loadChatRoomMessages(); 
                         }
                         else {
                             addWSMessage('📨 Received: ' + JSON.stringify(data, null, 2));
@@ -600,13 +1032,12 @@
                 
                 ws.onclose = function() {
                     updateStatus('Disconnected', false);
-                    document.getElementById('connect').disabled = false;
+                    document.getElementById('connect').disabled = true;
                     document.getElementById('disconnect').disabled = true;
                     document.getElementById('chatRoomMessageInput').disabled = true;
                     document.getElementById('sendChatRoomMessage').disabled = true;
                     
                     addWSMessage('System: Disconnected from WebSocket');
-                    // Notify backend of leaving active chat room
                     const activeChatId = document.getElementById('activeChatId').value;
                     if (activeChatId) {
                         sendWSMessage({ type: "leave_chat_room", chat_id: activeChatId });
@@ -623,7 +1054,6 @@
 
         function disconnectWS() {
             if (ws) {
-                // Notify backend of leaving active chat room before closing
                 const activeChatId = document.getElementById('activeChatId').value;
                 if (activeChatId && ws.readyState === WebSocket.OPEN) {
                     sendWSMessage({ type: "leave_chat_room", chat_id: activeChatId });
@@ -632,7 +1062,6 @@
             }
         }
 
-        // Generic WS message sender
         function sendWSMessage(messageData) {
             if (ws && ws.readyState === WebSocket.OPEN) {
                 ws.send(JSON.stringify(messageData));
@@ -644,21 +1073,62 @@
         // Chat Room Specific Functions
         function setActiveChatId() {
             const newChatId = document.getElementById('activeChatId').value;
-            if (newChatId) {
-                // If already in a chat room, leave it first
-                const oldChatId = document.getElementById('activeChatId').dataset.currentChatId;
-                if (oldChatId && oldChatId !== newChatId && ws && ws.readyState === WebSocket.OPEN) {
-                    sendWSMessage({ type: "leave_chat_room", chat_id: oldChatId });
-                }
-                document.getElementById('activeChatId').dataset.currentChatId = newChatId; // Store current active chat
-                loadChatRoomMessages();
-                if (ws && ws.readyState === WebSocket.OPEN) {
-                    sendWSMessage({ type: "join_chat_room", chat_id: newChatId }); // Notify backend of active chat room
-                }
-            } else {
+            if (!newChatId) {
                 alert('Please enter a Chat ID.');
+                return;
+            }
+
+            // Clear previous online users when changing chat rooms
+            onlineParticipants.clear();
+            updateOnlineUsersDisplay();
+
+            const oldChatId = document.getElementById('activeChatId').dataset.currentChatId;
+            if (oldChatId && oldChatId !== newChatId && ws && ws.readyState === WebSocket.OPEN) {
+                sendWSMessage({ type: "leave_chat_room", chat_id: oldChatId });
+            }
+            document.getElementById('activeChatId').dataset.currentChatId = newChatId; 
+            
+            // Get chat details to know participants
+            getChatDetailsAndLoadMessages(newChatId);
+
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                sendWSMessage({ type: "join_chat_room", chat_id: newChatId }); 
             }
         }
+
+        async function getChatDetailsAndLoadMessages(chatId) {
+            if (!currentToken) {
+                alert('Please login first');
+                return;
+            }
+            try {
+                const response = await fetch(`http://localhost:8080/v1/chats/${chatId}`, {
+                    headers: {
+                        'Authorization': 'Bearer ' + currentToken
+                    }
+                });
+                const data = await response.json();
+                if (data.success && data.data) {
+                    activeChatParticipants = data.data.participants;
+                    // Initialize online status for all participants as offline
+                    onlineParticipants.clear();
+                    activeChatParticipants.forEach(pId => {
+                        if (pId !== currentUserId) { // Don't track self here
+                            onlineParticipants.set(pId, { username: 'Unknown', is_online: false });
+                        }
+                    });
+                    updateOnlineUsersDisplay(); // Update display after getting participants
+                } else {
+                    console.error("Failed to get chat details:", data.error?.message || 'Unknown error');
+                    activeChatParticipants = [];
+                }
+            } catch (error) {
+                console.error("Error fetching chat details:", error);
+                activeChatParticipants = [];
+            }
+            loadChatRoomMessages(); // Always load messages after attempting to get details
+        }
+
 
         async function loadChatRoomMessages() {
             if (!currentToken) {
@@ -680,13 +1150,13 @@
                 const data = await response.json();
 
                 const chatRoomMessagesEl = document.getElementById('chatRoomMessages');
-                chatRoomMessagesEl.innerHTML = ''; // Clear existing messages
+                chatRoomMessagesEl.innerHTML = ''; 
 
                 if (data.success && data.data.items) {
-                    data.data.items.reverse().forEach(message => { // Display in chronological order
+                    data.data.items.reverse().forEach(message => { 
                         addMessageToChatRoom(message, message.sender);
                     });
-                    chatRoomMessagesEl.scrollTop = chatRoomMessagesEl.scrollHeight; // Scroll to bottom
+                    chatRoomMessagesEl.scrollTop = chatRoomMessagesEl.scrollHeight; 
                 } else {
                     chatRoomMessagesEl.innerHTML = `<em>Failed to load messages: ${data.error?.message || 'Unknown error'}</em>`;
                 }
@@ -699,29 +1169,106 @@
             const chatRoomMessagesEl = document.getElementById('chatRoomMessages');
             const messageBubble = document.createElement('div');
             messageBubble.className = 'chat-message-bubble';
+            messageBubble.dataset.messageId = message.id; // Store message ID for read receipts
 
             const isSelf = message.sender_id === currentUserId;
             messageBubble.classList.add(isSelf ? 'self' : 'other');
 
+            // Add specific classes for message types
+            if (message.type === 'system') {
+                messageBubble.classList.add('message-type-system');
+            } else if (message.type === 'offer') {
+                messageBubble.classList.add('message-type-offer');
+            }
+
             const senderName = senderInfo ? senderInfo.username : 'Unknown';
             const messageTime = new Date(message.created_at).toLocaleTimeString();
 
+            let contentHtml = message.content;
+            let readStatusHtml = '';
+            let productIdHtml = '';
+            let offerActionsHtml = '';
+
+            // Handle Product ID display
+            if (message.product_id) {
+                productIdHtml = `<div class="message-product-id">Product ID: ${message.product_id}</div>`;
+            }
+
+            // Handle Read Status (basic: check if current user is the sender and message is read by recipient)
+            // Updated logic for read status
+            if (isSelf) {
+                if (message.read_by && message.read_by.length > 1) { 
+                    readStatusHtml = '<div class="message-read-status">✔✔ Read</div>';
+                } else {
+                    readStatusHtml = '<div class="message-read-status">✔ Sent</div>';
+                }
+            }
+            // For received messages, no read status shown (it's assumed read by receiver if displayed)
+
+
+            // Handle Image/File attachment
+            if (message.type === 'image' && message.attachment_url) {
+                contentHtml = `<img src="${message.attachment_url}" alt="Attachment" style="max-width: 100%; height: auto; border-radius: 5px;">`;
+            } else if (message.type === 'file' && message.attachment_url) {
+                contentHtml = `<a href="${message.attachment_url}" target="_blank">Download File: ${message.content}</a>`;
+            }
+
+            // Handle Offer messages
+            if (message.type === 'offer' && message.metadata) {
+                const offerPrice = message.metadata.price || 'N/A';
+                const offerStatus = message.metadata.status || 'pending';
+                let statusClass = `offer-status-${offerStatus}`;
+                contentHtml = `
+                    <strong>Offer:</strong> $${offerPrice.toFixed(2)}<br>
+                    Status: <span class="${statusClass}">${offerStatus.toUpperCase()}</span>
+                `;
+
+                if (!isSelf && offerStatus === 'pending') { // Only recipient can act on pending offers
+                    offerActionsHtml = `
+                        <div class="offer-actions">
+                            <button class="accept-btn" onclick="sendOfferAction('${message.chat_id}', '${message.id}', 'accept')">Accept</button>
+                            <button class="reject-btn" onclick="sendOfferAction('${message.chat_id}', '${message.id}', 'reject')">Reject</button>
+                        </div>
+                    `;
+                }
+            }
+
+
             messageBubble.innerHTML = `
                 <div class="sender-name">${isSelf ? 'You' : senderName}</div>
-                <div class="message-content">${message.content}</div>
+                <div class="message-content">${contentHtml}</div>
+                ${productIdHtml}
                 <div class="message-timestamp">${messageTime}</div>
+                ${readStatusHtml}
+                ${offerActionsHtml}
             `;
             chatRoomMessagesEl.appendChild(messageBubble);
-            chatRoomMessagesEl.scrollTop = chatRoomMessagesEl.scrollHeight; // Scroll to bottom
+            chatRoomMessagesEl.scrollTop = chatRoomMessagesEl.scrollHeight; 
         }
 
         async function sendChatRoomMessage() {
             const chatId = document.getElementById('activeChatId').value;
             const content = document.getElementById('chatRoomMessageInput').value.trim();
+            const messageType = document.getElementById('messageType').value; 
+            const attachmentUrl = document.getElementById('attachmentUrl').value;
+            const offerPrice = document.getElementById('offerPrice').value;
+            const messageProductId = document.getElementById('messageProductId').value;
 
             if (!chatId || !content) {
                 alert('Please select an active chat and type a message.');
                 return;
+            }
+
+            let messageMetadata = {};
+            if (messageType === 'offer') {
+                if (!offerPrice) {
+                    alert('Please enter an offer price.');
+                    return;
+                }
+                messageMetadata = {
+                    price: parseFloat(offerPrice),
+                    status: "pending"
+                };
             }
 
             try {
@@ -733,16 +1280,23 @@
                     },
                     body: JSON.stringify({
                         content: content,
-                        type: 'text'
+                        type: messageType,
+                        attachment_url: (messageType === 'image' || messageType === 'file') ? attachmentUrl || undefined : undefined,
+                        metadata: (messageType === 'offer') ? messageMetadata : undefined,
+                        product_id: messageProductId || undefined
                     })
                 });
 
                 const data = await response.json();
+                addRestResult('Send Message (REST)', data);
+                
                 if (data.success) {
                     document.getElementById('chatRoomMessageInput').value = '';
+                    document.getElementById('attachmentUrl').value = '';
+                    document.getElementById('offerPrice').value = '';
+                    document.getElementById('messageProductId').value = '';
                     // Optimistic update for sender: add message to UI immediately
                     addMessageToChatRoom(data.data, { id: currentUserId, username: currentUsername });
-                    // Send typing_stop after sending message
                     sendWSMessage({ type: "typing_stop", chat_id: chatId });
                 } else {
                     alert('Failed to send message: ' + (data.error?.message || 'Unknown error'));
@@ -782,24 +1336,83 @@
             }
         }
 
+        async function sendOfferAction(chatId, messageId, action) {
+            if (!currentToken) {
+                alert('Please login first');
+                return;
+            }
+            if (!chatId || !messageId || !action) {
+                alert('Missing chat ID, message ID, or action for offer.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:8080/v1/chats/${chatId}/messages/${action}-offer`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + currentToken
+                    },
+                    body: JSON.stringify({
+                        message_id: messageId
+                    })
+                });
+
+                const data = await response.json();
+                addRestResult(`Offer ${action} Action`, data);
+                if (data.success) {
+                    alert(`Offer ${action} successful!`);
+                    loadChatRoomMessages(); 
+                } else {
+                    alert(`Failed to ${action} offer: ` + (data.error?.message || 'Unknown error'));
+                }
+            } catch (error) {
+                alert(`Error during offer ${action}: ` + error.message);
+            }
+        }
+
+
         // Typing indicator logic
         document.getElementById('chatRoomMessageInput').addEventListener('input', function() {
             const chatId = document.getElementById('activeChatId').value;
             if (!chatId || !ws || ws.readyState !== WebSocket.OPEN) return;
 
-            // Clear previous timeout
             if (typingTimeout) {
                 clearTimeout(typingTimeout);
             } else {
-                // Only send typing_start if not already typing
                 sendWSMessage({ type: "typing_start", chat_id: chatId });
             }
 
-            // Set a timeout to send typing_stop after a short delay
             typingTimeout = setTimeout(() => {
                 sendWSMessage({ type: "typing_stop", chat_id: chatId });
                 typingTimeout = null;
-            }, 1000); // Send stop after 1 second of no input
+            }, 1000); 
+        });
+
+        // Message Type dropdown logic
+        document.getElementById('messageType').addEventListener('change', function() {
+            const type = this.value;
+            document.getElementById('attachmentUrlGroup').style.display = 'none';
+            document.getElementById('offerDetailsGroup').style.display = 'none';
+            document.getElementById('messageProductId').value = ''; // Clear product ID when type changes
+
+            if (type === 'image' || type === 'file') {
+                document.getElementById('attachmentUrlGroup').style.display = 'flex';
+            } else if (type === 'offer') {
+                document.getElementById('offerDetailsGroup').style.display = 'flex';
+            }
+        });
+
+        // Process Payment Delivery Method dropdown logic
+        document.getElementById('processPaymentDeliveryMethod').addEventListener('change', function() {
+            const method = this.value;
+            if (method === 'middleman') {
+                document.getElementById('paymentDetailsGroup').style.display = 'none';
+                document.getElementById('cardNumberGroup').style.display = 'none';
+            } else {
+                document.getElementById('paymentDetailsGroup').style.display = 'flex';
+                document.getElementById('cardNumberGroup').style.display = 'flex';
+            }
         });
 
 
@@ -829,13 +1442,66 @@
                 <strong>${title}</strong> <span class="timestamp">(${new Date().toLocaleTimeString()})</span>
                 <pre>${JSON.stringify(data, null, 2)}</pre>
             `;
-            resultsEl.prepend(resultEl); // Add to top
-            resultsEl.scrollTop = 0; // Keep scroll at top for new results
+            resultsEl.prepend(resultEl); 
+            resultsEl.scrollTop = 0; 
         }
+
+        // Update online users list
+        function updateOnlineUsers(userId, username, isOnline) {
+            if (userId === currentUserId) return; // Don't track self
+
+            if (isOnline) {
+                onlineParticipants.set(userId, { username: username, is_online: true });
+            } else {
+                if (onlineParticipants.has(userId)) {
+                    onlineParticipants.get(userId).is_online = false; // Mark as offline
+                }
+            }
+            updateOnlineUsersDisplay();
+        }
+
+        function updateOnlineUsersDisplay() {
+            const onlineUsersListEl = document.getElementById('onlineUsersList');
+            onlineUsersListEl.innerHTML = ''; // Clear current display
+
+            const participantsInChat = new Set(activeChatParticipants);
+            
+            // Add current user to the display as "You (Online)"
+            const selfItem = document.createElement('span');
+            selfItem.className = 'online-user-item';
+            selfItem.textContent = `You (${currentUsername} - Online)`;
+            onlineUsersListEl.appendChild(selfItem);
+
+            onlineParticipants.forEach((userInfo, userId) => {
+                if (userId === currentUserId) return; // Skip self, already added
+
+                // Only display if they are actually a participant of the active chat
+                if (participantsInChat.has(userId)) {
+                    const userItem = document.createElement('span');
+                    userItem.className = userInfo.is_online ? 'online-user-item' : 'offline-user-item';
+                    userItem.textContent = `${userInfo.username} (${userInfo.is_online ? 'Online' : 'Offline'})`;
+                    onlineUsersListEl.appendChild(userItem);
+                }
+            });
+
+            // Add other participants who are not currently online (and not self)
+            activeChatParticipants.forEach(pId => {
+                if (pId !== currentUserId && !onlineParticipants.has(pId)) {
+                    // Attempt to get username from senderInfo if available, otherwise just ID
+                    // For simplicity, we'll just display ID or a placeholder if username not known
+                    const userItem = document.createElement('span');
+                    userItem.className = 'offline-user-item';
+                    userItem.textContent = `${pId} (Offline)`; // Fallback to ID
+                    onlineUsersListEl.appendChild(userItem);
+                }
+            });
+        }
+
 
         // Allow sending message with Enter key
         document.getElementById('messageContent').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
+            if (e.key === 'Enter' && !e.shiftKey) { // Allow shift+enter for new line in textarea
+                e.preventDefault(); // Prevent default new line
                 sendRestMessage();
             }
         });
@@ -848,10 +1514,12 @@
         
         // Initial setup
         document.addEventListener('DOMContentLoaded', () => {
-            // Pre-fill login for convenience
             document.getElementById('loginEmail').value = 'javierroyality@gmail.com';
             document.getElementById('loginPassword').value = 'password';
-            // You might want to remove these pre-fills in a real app
+
+            // Trigger change event for message type dropdown on load
+            document.getElementById('messageType').dispatchEvent(new Event('change'));
+            document.getElementById('processPaymentDeliveryMethod').dispatchEvent(new Event('change'));
         });
     </script>
 </body>
