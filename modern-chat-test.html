@@ -1,0 +1,1497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PasargameX Chat Testing - Modern UI</title>
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --primary-dark: #0056b3;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --info-color: #17a2b8;
+            --light-bg: #f8f9fa;
+            --dark-bg: #343a40;
+            --border-color: #dee2e6;
+            --text-color: #212529;
+            --text-muted: #6c757d;
+            --shadow: 0 2px 10px rgba(0,0,0,0.1);
+            --border-radius: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--text-color);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 300px 1fr 320px;
+            grid-template-rows: auto 1fr;
+            gap: 20px;
+            height: 100vh;
+        }
+
+        .header {
+            grid-column: 1 / -1;
+            background: white;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header h1 {
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-bar {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 14px;
+        }
+
+        .status-indicator {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: 12px;
+        }
+
+        .status-connected {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .status-disconnected {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .sidebar {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            background: var(--primary-color);
+            color: white;
+            padding: 15px;
+            font-weight: 600;
+        }
+
+        .sidebar-content {
+            padding: 15px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: var(--text-color);
+            font-size: 13px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-warning {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .chat-main {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: var(--light-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .chat-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chat-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .chat-details h3 {
+            font-size: 16px;
+            margin-bottom: 2px;
+        }
+
+        .chat-status {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f5f7fa;
+            background-image: 
+                radial-gradient(circle at 1px 1px, rgba(255,255,255,0.15) 1px, transparent 0);
+            background-size: 20px 20px;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+        }
+
+        .message-self {
+            flex-direction: row-reverse;
+        }
+
+        .message-bubble {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            position: relative;
+            word-wrap: break-word;
+        }
+
+        .message-other .message-bubble {
+            background: white;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .message-self .message-bubble {
+            background: var(--primary-color);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message-system .message-bubble {
+            background: var(--warning-color);
+            color: white;
+            max-width: 80%;
+            text-align: center;
+            font-style: italic;
+            border-radius: 12px;
+        }
+
+        .message-offer .message-bubble {
+            background: linear-gradient(135deg, #ff9a56 0%, #ffad56 100%);
+            color: white;
+        }
+
+        .message-sender {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+            font-weight: 500;
+        }
+
+        .message-content {
+            line-height: 1.4;
+        }
+
+        .message-meta {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 5px;
+            margin-top: 5px;
+            font-size: 11px;
+            opacity: 0.7;
+        }
+
+        .message-time {
+            color: inherit;
+        }
+
+        .message-status {
+            display: flex;
+            align-items: center;
+        }
+
+        .offer-actions {
+            margin-top: 10px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .offer-price {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .offer-status {
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .offer-status-pending {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .offer-status-accepted {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .offer-status-rejected {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .typing-indicator {
+            padding: 10px 20px;
+            font-style: italic;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .chat-input-area {
+            border-top: 1px solid var(--border-color);
+            background: white;
+            padding: 15px 20px;
+        }
+
+        .chat-input-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            resize: none;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .send-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+        }
+
+        .send-btn:hover:not(:disabled) {
+            background: var(--primary-dark);
+        }
+
+        .send-btn:disabled {
+            background: var(--text-muted);
+        }
+
+        .controls-panel {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            overflow: hidden;
+        }
+
+        .panel-section {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .panel-section:last-child {
+            border-bottom: none;
+        }
+
+        .panel-section h3 {
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .online-users {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .user-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            border-radius: 6px;
+            margin-bottom: 5px;
+        }
+
+        .user-online {
+            background: rgba(40, 167, 69, 0.1);
+            border-left: 3px solid var(--success-color);
+        }
+
+        .user-offline {
+            background: rgba(108, 117, 125, 0.1);
+            border-left: 3px solid var(--text-muted);
+        }
+
+        .user-status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .user-status-online {
+            background: var(--success-color);
+        }
+
+        .user-status-offline {
+            background: var(--text-muted);
+        }
+
+        .logs-area {
+            background: #1e1e1e;
+            color: #f8f8f2;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            height: 150px;
+            overflow-y: auto;
+            padding: 10px;
+            border-radius: 6px;
+        }
+
+        .log-entry {
+            margin-bottom: 5px;
+            padding: 2px 0;
+        }
+
+        .log-success {
+            color: #50fa7b;
+        }
+
+        .log-error {
+            color: #ff5555;
+        }
+
+        .log-info {
+            color: #8be9fd;
+        }
+
+        .log-timestamp {
+            color: #6272a4;
+            margin-right: 10px;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .floating-controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            min-width: 200px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: var(--border-radius);
+            color: white;
+            font-weight: 500;
+            z-index: 1000;
+            box-shadow: var(--shadow);
+            animation: slideIn 0.3s ease;
+        }
+
+        .notification-success {
+            background: var(--success-color);
+        }
+
+        .notification-error {
+            background: var(--danger-color);
+        }
+
+        .notification-info {
+            background: var(--info-color);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .container {
+                grid-template-columns: 280px 1fr 280px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto 1fr auto;
+                padding: 10px;
+            }
+
+            .sidebar,
+            .controls-panel {
+                order: 4;
+                max-height: 300px;
+            }
+
+            .floating-controls {
+                position: static;
+                margin-top: 20px;
+            }
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--light-bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--text-muted);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-color);
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>
+                🎮 PasargameX Chat Testing
+                <span style="font-size: 14px; color: var(--text-muted); font-weight: normal;">Modern Interface</span>
+            </h1>
+            <div class="status-bar">
+                <div id="authStatus" class="status-indicator status-disconnected">Not Authenticated</div>
+                <div id="wsStatus" class="status-indicator status-disconnected">WebSocket Disconnected</div>
+                <div style="font-size: 12px; color: var(--text-muted);" id="currentUser">Not logged in</div>
+            </div>
+        </div>
+
+        <!-- Sidebar - Auth & Controls -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                🔐 Authentication & Setup
+            </div>
+            <div class="sidebar-content">
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-input" id="loginEmail" value="javierroyality@gmail.com">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-input" id="loginPassword" value="password">
+                </div>
+                
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="login()">Login</button>
+                </div>
+
+                <hr style="margin: 20px 0; border: none; border-top: 1px solid var(--border-color);">
+
+                <div class="form-group">
+                    <label class="form-label">WebSocket Connection</label>
+                    <div class="btn-group">
+                        <button class="btn btn-success btn-sm" id="connectBtn" onclick="connectWS()">Connect</button>
+                        <button class="btn btn-danger btn-sm" id="disconnectBtn" onclick="disconnectWS()" disabled>Disconnect</button>
+                    </div>
+                </div>
+
+                <hr style="margin: 20px 0; border: none; border-top: 1px solid var(--border-color);">
+
+                <div class="form-group">
+                    <label class="form-label">Quick Chat Setup</label>
+                    <input type="text" class="form-input" id="recipientId" placeholder="Recipient User ID">
+                    <input type="text" class="form-input" id="productId" placeholder="Product ID (optional)" style="margin-top: 8px;">
+                    <button class="btn btn-primary btn-sm" onclick="quickCreateChat()" style="margin-top: 8px; width: 100%;">Create Chat</button>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Active Chat</label>
+                    <input type="text" class="form-input" id="activeChatId" placeholder="Chat ID">
+                    <button class="btn btn-primary btn-sm" onclick="setActiveChat()" style="margin-top: 8px; width: 100%;">Join Chat</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Chat Area -->
+        <div class="chat-main">
+            <div class="chat-header">
+                <div class="chat-info">
+                    <div class="chat-avatar" id="chatAvatar">💬</div>
+                    <div class="chat-details">
+                        <h3 id="chatTitle">Select a chat to start</h3>
+                        <div class="chat-status" id="chatStatus">No active chat</div>
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-sm btn-primary" onclick="loadMessages()">Refresh</button>
+                    <button class="btn btn-sm btn-warning" onclick="markAsRead()">Mark Read</button>
+                </div>
+            </div>
+
+            <div class="chat-messages" id="chatMessages">
+                <div style="text-align: center; color: var(--text-muted); margin-top: 50px;">
+                    <div style="font-size: 48px; margin-bottom: 20px;">💬</div>
+                    <h3>Welcome to PasargameX Chat Testing</h3>
+                    <p>Login and connect to WebSocket to start testing</p>
+                </div>
+            </div>
+
+            <div class="typing-indicator" id="typingIndicator" style="display: none;"></div>
+
+            <div class="chat-input-area">
+                <div class="chat-input-toolbar">
+                    <select id="messageType" class="form-input" style="width: 100px;">
+                        <option value="text">Text</option>
+                        <option value="image">Image</option>
+                        <option value="offer">Offer</option>
+                    </select>
+                    
+                    <input type="text" id="attachmentUrl" class="form-input" placeholder="Attachment URL" style="display: none;">
+                    <input type="number" id="offerPrice" class="form-input" placeholder="Price" style="display: none; width: 100px;">
+                </div>
+
+                <div class="input-group">
+                    <textarea 
+                        id="messageInput" 
+                        class="chat-input" 
+                        placeholder="Type a message..."
+                        rows="1"
+                        disabled
+                    ></textarea>
+                    <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled>
+                        ➤
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel - Users & Logs -->
+        <div class="controls-panel">
+            <div class="panel-section">
+                <h3>👥 Online Users</h3>
+                <div class="online-users" id="onlineUsers">
+                    <div class="user-item user-offline">
+                        <div class="user-status-dot user-status-offline"></div>
+                        <span>No users online</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <h3>⚡ Quick Actions</h3>
+                <div class="quick-actions">
+                    <button class="btn btn-sm btn-warning" onclick="testRateLimit()">Test Rate Limit</button>
+                    <button class="btn btn-sm btn-info" onclick="testTyping()">Test Typing</button>
+                    <button class="btn btn-sm btn-success" onclick="sendTestMessage()">Send Test</button>
+                    <button class="btn btn-sm btn-danger" onclick="clearChat()">Clear Chat</button>
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <h3>📊 System Logs</h3>
+                <div class="logs-area" id="systemLogs">
+                    <div class="log-entry log-info">
+                        <span class="log-timestamp">[INIT]</span>
+                        System initialized. Ready for testing.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global Variables
+        let ws = null;
+        let currentToken = '';
+        let currentUserId = '';
+        let currentUsername = '';
+        let activeChatId = '';
+        let typingTimeout = null;
+        let onlineUsers = new Map();
+
+        // Authentication
+        async function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!email || !password) {
+                showNotification('Please enter email and password', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:8080/v1/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok && (data.success || data.token)) {
+                    if (data.success) {
+                        currentToken = data.data.token;
+                        currentUserId = data.data.user.id;
+                        currentUsername = data.data.user.username;
+                    } else if (data.token) {
+                        currentToken = data.token;
+                        currentUserId = data.user.id;
+                        currentUsername = data.user.username;
+                    }
+                    
+                    updateAuthStatus(true);
+                    logMessage('AUTH', `Logged in as ${currentUsername} (${currentUserId})`, 'success');
+                    showNotification(`Welcome ${currentUsername}!`, 'success');
+                    
+                } else {
+                    throw new Error(data.error?.message || data.message || 'Login failed');
+                }
+            } catch (error) {
+                updateAuthStatus(false);
+                logMessage('AUTH', `Login failed: ${error.message}`, 'error');
+                showNotification(`Login failed: ${error.message}`, 'error');
+            }
+        }
+
+        // WebSocket Connection
+        function connectWS() {
+            if (!currentToken) {
+                showNotification('Please login first', 'error');
+                return;
+            }
+
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                showNotification('WebSocket already connected', 'info');
+                return;
+            }
+
+            try {
+                ws = new WebSocket(`ws://localhost:8080/ws?token=${currentToken}`);
+                
+                ws.onopen = function() {
+                    updateWSStatus(true);
+                    logMessage('WS', 'WebSocket connected successfully', 'success');
+                    showNotification('WebSocket connected!', 'success');
+                    
+                    // Auto-join active chat if exists
+                    if (activeChatId) {
+                        sendWSMessage({ type: "join_chat_room", chat_id: activeChatId });
+                    }
+                };
+                
+                ws.onmessage = function(event) {
+                    handleWebSocketMessage(event);
+                };
+                
+                ws.onclose = function() {
+                    updateWSStatus(false);
+                    logMessage('WS', 'WebSocket disconnected', 'error');
+                    showNotification('WebSocket disconnected', 'error');
+                };
+                
+                ws.onerror = function(error) {
+                    logMessage('WS', `WebSocket error: ${error.message}`, 'error');
+                    showNotification('WebSocket error occurred', 'error');
+                };
+            } catch (error) {
+                logMessage('WS', `Connection error: ${error.message}`, 'error');
+                showNotification('Failed to connect WebSocket', 'error');
+            }
+        }
+
+        function disconnectWS() {
+            if (ws) {
+                if (activeChatId && ws.readyState === WebSocket.OPEN) {
+                    sendWSMessage({ type: "leave_chat_room", chat_id: activeChatId });
+                }
+                ws.close();
+            }
+        }
+
+        // WebSocket Message Handler
+        function handleWebSocketMessage(event) {
+            try {
+                const data = JSON.parse(event.data);
+                logMessage('WS', `Received: ${data.type}`, 'info');
+
+                switch (data.type) {
+                    case 'auth_success':
+                        showNotification('WebSocket authenticated!', 'success');
+                        break;
+                    
+                    case 'auth_error':
+                        showNotification('WebSocket auth failed', 'error');
+                        disconnectWS();
+                        break;
+                    
+                    case 'new_message':
+                        handleNewMessage(data);
+                        break;
+                    
+                    case 'typing_indicator':
+                        handleTypingIndicator(data);
+                        break;
+                    
+                    case 'user_presence':
+                        handleUserPresence(data);
+                        break;
+                    
+                    case 'message_read_receipt':
+                        handleReadReceipt(data);
+                        break;
+                    
+                    case 'rate_limit_exceeded':
+                        showNotification('Rate limit exceeded! Slow down.', 'error');
+                        break;
+                    
+                    case 'offer_update':
+                        loadMessages(); // Refresh to show updated offer
+                        showNotification(`Offer ${data.status}!`, 'success');
+                        break;
+                    
+                    default:
+                        logMessage('WS', `Unknown message type: ${data.type}`, 'info');
+                }
+            } catch (e) {
+                logMessage('WS', `Parse error: ${e.message}`, 'error');
+            }
+        }
+
+        // Chat Functions
+        async function quickCreateChat() {
+            if (!currentToken) {
+                showNotification('Please login first', 'error');
+                return;
+            }
+
+            const recipientId = document.getElementById('recipientId').value;
+            const productId = document.getElementById('productId').value;
+
+            if (!recipientId) {
+                showNotification('Please enter recipient ID', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:8080/v1/chats', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + currentToken
+                    },
+                    body: JSON.stringify({
+                        recipient_id: recipientId,
+                        product_id: productId || undefined,
+                        initial_message: "Chat created from testing interface!"
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success && data.data.id) {
+                    document.getElementById('activeChatId').value = data.data.id;
+                    setActiveChat();
+                    showNotification('Chat created successfully!', 'success');
+                    logMessage('CHAT', `Created chat ${data.data.id}`, 'success');
+                } else {
+                    throw new Error(data.error?.message || 'Failed to create chat');
+                }
+            } catch (error) {
+                showNotification(`Failed to create chat: ${error.message}`, 'error');
+                logMessage('CHAT', `Create failed: ${error.message}`, 'error');
+            }
+        }
+
+        function setActiveChat() {
+            const chatId = document.getElementById('activeChatId').value;
+            if (!chatId) {
+                showNotification('Please enter a chat ID', 'error');
+                return;
+            }
+
+            // Leave previous chat
+            if (activeChatId && ws && ws.readyState === WebSocket.OPEN) {
+                sendWSMessage({ type: "leave_chat_room", chat_id: activeChatId });
+            }
+
+            activeChatId = chatId;
+            updateChatHeader(chatId);
+            
+            // Join new chat
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                sendWSMessage({ type: "join_chat_room", chat_id: chatId });
+            }
+
+            loadMessages();
+            enableChatInput();
+            showNotification(`Joined chat ${chatId}`, 'success');
+            logMessage('CHAT', `Joined chat ${chatId}`, 'success');
+        }
+
+        async function loadMessages() {
+            if (!activeChatId || !currentToken) return;
+
+            try {
+                const response = await fetch(`http://localhost:8080/v1/chats/${activeChatId}/messages`, {
+                    headers: { 'Authorization': 'Bearer ' + currentToken }
+                });
+
+                const data = await response.json();
+                
+                if (data.success && data.data.items) {
+                    displayMessages(data.data.items);
+                    logMessage('CHAT', `Loaded ${data.data.items.length} messages`, 'success');
+                } else {
+                    throw new Error(data.error?.message || 'Failed to load messages');
+                }
+            } catch (error) {
+                logMessage('CHAT', `Load failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function sendMessage() {
+            if (!activeChatId || !currentToken) {
+                showNotification('No active chat selected', 'error');
+                return;
+            }
+
+            const content = document.getElementById('messageInput').value.trim();
+            const messageType = document.getElementById('messageType').value;
+            const attachmentUrl = document.getElementById('attachmentUrl').value;
+            const offerPrice = document.getElementById('offerPrice').value;
+
+            if (!content) return;
+
+            let messageData = {
+                content: content,
+                type: messageType
+            };
+
+            if (messageType === 'image' && attachmentUrl) {
+                messageData.attachment_url = attachmentUrl;
+            } else if (messageType === 'offer' && offerPrice) {
+                messageData.metadata = {
+                    price: parseFloat(offerPrice),
+                    status: "pending"
+                };
+            }
+
+            try {
+                const response = await fetch(`http://localhost:8080/v1/chats/${activeChatId}/messages`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + currentToken
+                    },
+                    body: JSON.stringify(messageData)
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('messageInput').value = '';
+                    document.getElementById('attachmentUrl').value = '';
+                    document.getElementById('offerPrice').value = '';
+                    
+                    // Add message to UI immediately (optimistic update)
+                    addMessageToUI(data.data, true);
+                    
+                    // Stop typing indicator
+                    sendWSMessage({ type: "typing_stop", chat_id: activeChatId });
+                    
+                    logMessage('CHAT', `Sent ${messageType} message`, 'success');
+                } else {
+                    throw new Error(data.error?.message || 'Failed to send message');
+                }
+            } catch (error) {
+                showNotification(`Failed to send message: ${error.message}`, 'error');
+                logMessage('CHAT', `Send failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Message Display
+        function displayMessages(messages) {
+            const container = document.getElementById('chatMessages');
+            container.innerHTML = '';
+            
+            messages.reverse().forEach(message => {
+                addMessageToUI(message, message.sender_id === currentUserId);
+            });
+            
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function addMessageToUI(message, isSelf) {
+            const container = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            
+            messageDiv.className = `message ${isSelf ? 'message-self' : 'message-other'}`;
+            if (message.type === 'system') messageDiv.className += ' message-system';
+            if (message.type === 'offer') messageDiv.className += ' message-offer';
+            
+            messageDiv.dataset.messageId = message.id;
+
+            let contentHtml = escapeHtml(message.content);
+            let metaHtml = '';
+            let actionsHtml = '';
+
+            // Handle different message types
+            if (message.type === 'image' && message.attachment_url) {
+                contentHtml = `<img src="${message.attachment_url}" alt="Image" style="max-width: 250px; border-radius: 8px;">`;
+            } else if (message.type === 'offer' && message.metadata) {
+                const price = message.metadata.price || 0;
+                const status = message.metadata.status || 'pending';
+                
+                contentHtml = `
+                    <div class="offer-price">$${price.toFixed(2)}</div>
+                    <div>${escapeHtml(message.content)}</div>
+                    <div class="offer-status offer-status-${status}">${status}</div>
+                `;
+
+                if (!isSelf && status === 'pending') {
+                    actionsHtml = `
+                        <div class="offer-actions">
+                            <button class="btn btn-success btn-sm" onclick="respondToOffer('${message.chat_id}', '${message.id}', 'accept')">Accept</button>
+                            <button class="btn btn-danger btn-sm" onclick="respondToOffer('${message.chat_id}', '${message.id}', 'reject')">Reject</button>
+                        </div>
+                    `;
+                }
+            }
+
+            // Message meta (time and status)
+            const time = new Date(message.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            if (isSelf) {
+                const readStatus = message.read_by && message.read_by.length > 1 ? '✓✓' : '✓';
+                metaHtml = `
+                    <div class="message-meta">
+                        <span class="message-time">${time}</span>
+                        <span class="message-status">${readStatus}</span>
+                    </div>
+                `;
+            } else {
+                metaHtml = `<div class="message-meta"><span class="message-time">${time}</span></div>`;
+            }
+
+            const senderName = message.sender ? message.sender.username : 'Unknown';
+            const senderHtml = !isSelf && message.type !== 'system' ? `<div class="message-sender">${escapeHtml(senderName)}</div>` : '';
+
+            messageDiv.innerHTML = `
+                <div class="message-bubble">
+                    ${senderHtml}
+                    <div class="message-content">${contentHtml}</div>
+                    ${metaHtml}
+                    ${actionsHtml}
+                </div>
+            `;
+
+            container.appendChild(messageDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // Utility Functions
+        function sendWSMessage(data) {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify(data));
+            }
+        }
+
+        function updateAuthStatus(isAuth) {
+            const statusEl = document.getElementById('authStatus');
+            const userEl = document.getElementById('currentUser');
+            
+            if (isAuth) {
+                statusEl.textContent = 'Authenticated';
+                statusEl.className = 'status-indicator status-connected';
+                userEl.textContent = `${currentUsername} (${currentUserId})`;
+            } else {
+                statusEl.textContent = 'Not Authenticated';
+                statusEl.className = 'status-indicator status-disconnected';
+                userEl.textContent = 'Not logged in';
+            }
+        }
+
+        function updateWSStatus(isConnected) {
+            const statusEl = document.getElementById('wsStatus');
+            const connectBtn = document.getElementById('connectBtn');
+            const disconnectBtn = document.getElementById('disconnectBtn');
+            
+            if (isConnected) {
+                statusEl.textContent = 'WebSocket Connected';
+                statusEl.className = 'status-indicator status-connected';
+                connectBtn.disabled = true;
+                disconnectBtn.disabled = false;
+            } else {
+                statusEl.textContent = 'WebSocket Disconnected';
+                statusEl.className = 'status-indicator status-disconnected';
+                connectBtn.disabled = false;
+                disconnectBtn.disabled = true;
+            }
+        }
+
+        function updateChatHeader(chatId) {
+            document.getElementById('chatTitle').textContent = `Chat ${chatId.substring(0, 8)}...`;
+            document.getElementById('chatStatus').textContent = 'Active chat';
+        }
+
+        function enableChatInput() {
+            document.getElementById('messageInput').disabled = false;
+            document.getElementById('sendBtn').disabled = false;
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 4000);
+        }
+
+        function logMessage(category, message, type = 'info') {
+            const logsEl = document.getElementById('systemLogs');
+            const timestamp = new Date().toLocaleTimeString();
+            
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry log-${type}`;
+            logEntry.innerHTML = `
+                <span class="log-timestamp">[${timestamp}]</span>
+                <span>[${category}]</span> ${message}
+            `;
+            
+            logsEl.appendChild(logEntry);
+            logsEl.scrollTop = logsEl.scrollHeight;
+            
+            // Keep only last 100 logs
+            while (logsEl.children.length > 100) {
+                logsEl.removeChild(logsEl.firstChild);
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Event Handlers
+        function handleNewMessage(data) {
+            if (data.chat_id === activeChatId) {
+                // Only add if not already present (to avoid duplicates from optimistic updates)
+                if (!document.querySelector(`[data-message-id="${data.message.id}"]`)) {
+                    addMessageToUI(data.message, data.message.sender_id === currentUserId);
+                }
+                
+                // Mark as read if not from self
+                if (data.message.sender_id !== currentUserId) {
+                    sendWSMessage({ 
+                        type: "mark_message_read", 
+                        chat_id: data.chat_id, 
+                        data: { message_id: data.message.id } 
+                    });
+                }
+            }
+        }
+
+        function handleTypingIndicator(data) {
+            if (data.chat_id === activeChatId && data.user_id !== currentUserId) {
+                const indicator = document.getElementById('typingIndicator');
+                if (data.is_typing) {
+                    indicator.textContent = `${data.username} is typing...`;
+                    indicator.style.display = 'block';
+                } else {
+                    indicator.style.display = 'none';
+                }
+            }
+        }
+
+        function handleUserPresence(data) {
+            if (data.chat_id === activeChatId) {
+                updateOnlineUsersList(data.user_id, data.username, data.is_online);
+            }
+        }
+
+        function handleReadReceipt(data) {
+            const messageEl = document.querySelector(`[data-message-id="${data.message_id}"]`);
+            if (messageEl) {
+                const statusEl = messageEl.querySelector('.message-status');
+                if (statusEl) {
+                    statusEl.textContent = '✓✓';
+                }
+            }
+        }
+
+        function updateOnlineUsersList(userId, username, isOnline) {
+            if (userId === currentUserId) return;
+
+            if (isOnline) {
+                onlineUsers.set(userId, { username, isOnline: true });
+            } else {
+                onlineUsers.set(userId, { username, isOnline: false });
+            }
+
+            renderOnlineUsers();
+        }
+
+        function renderOnlineUsers() {
+            const container = document.getElementById('onlineUsers');
+            container.innerHTML = '';
+
+            // Add self first
+            const selfDiv = document.createElement('div');
+            selfDiv.className = 'user-item user-online';
+            selfDiv.innerHTML = `
+                <div class="user-status-dot user-status-online"></div>
+                <span>You (${currentUsername})</span>
+            `;
+            container.appendChild(selfDiv);
+
+            // Add others
+            onlineUsers.forEach((user, userId) => {
+                const userDiv = document.createElement('div');
+                userDiv.className = `user-item ${user.isOnline ? 'user-online' : 'user-offline'}`;
+                userDiv.innerHTML = `
+                    <div class="user-status-dot ${user.isOnline ? 'user-status-online' : 'user-status-offline'}"></div>
+                    <span>${user.username} ${user.isOnline ? '(Online)' : '(Offline)'}</span>
+                `;
+                container.appendChild(userDiv);
+            });
+
+            if (onlineUsers.size === 0) {
+                const emptyDiv = document.createElement('div');
+                emptyDiv.className = 'user-item user-offline';
+                emptyDiv.innerHTML = `
+                    <div class="user-status-dot user-status-offline"></div>
+                    <span>Only you in this chat</span>
+                `;
+                container.appendChild(emptyDiv);
+            }
+        }
+
+        // Quick Action Functions
+        function testRateLimit() {
+            if (!activeChatId) {
+                showNotification('Please join a chat first', 'error');
+                return;
+            }
+            
+            logMessage('TEST', 'Starting rate limit test...', 'info');
+            for (let i = 0; i < 35; i++) {
+                setTimeout(() => {
+                    document.getElementById('messageInput').value = `Rate test ${i + 1}`;
+                    sendMessage();
+                }, i * 100);
+            }
+        }
+
+        function testTyping() {
+            if (!activeChatId || !ws || ws.readyState !== WebSocket.OPEN) {
+                showNotification('WebSocket not connected or no active chat', 'error');
+                return;
+            }
+            
+            sendWSMessage({ type: "typing_start", chat_id: activeChatId });
+            setTimeout(() => {
+                sendWSMessage({ type: "typing_stop", chat_id: activeChatId });
+            }, 3000);
+            
+            showNotification('Typing indicator test sent', 'info');
+        }
+
+        function sendTestMessage() {
+            if (!activeChatId) {
+                showNotification('Please join a chat first', 'error');
+                return;
+            }
+            
+            document.getElementById('messageInput').value = `Test message from modern UI - ${new Date().toLocaleTimeString()}`;
+            sendMessage();
+        }
+
+        function clearChat() {
+            document.getElementById('chatMessages').innerHTML = `
+                <div style="text-align: center; color: var(--text-muted); margin-top: 50px;">
+                    <div style="font-size: 48px; margin-bottom: 20px;">💬</div>
+                    <h3>Chat Cleared</h3>
+                    <p>Messages cleared from UI (not from server)</p>
+                </div>
+            `;
+        }
+
+        async function respondToOffer(chatId, messageId, action) {
+            try {
+                const response = await fetch(`http://localhost:8080/v1/chats/${chatId}/messages/${action}-offer`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + currentToken
+                    },
+                    body: JSON.stringify({ message_id: messageId })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    showNotification(`Offer ${action}ed successfully!`, 'success');
+                    loadMessages(); // Refresh to show updated offer
+                } else {
+                    throw new Error(data.error?.message || `Failed to ${action} offer`);
+                }
+            } catch (error) {
+                showNotification(`Failed to ${action} offer: ${error.message}`, 'error');
+            }
+        }
+
+        async function markAsRead() {
+            if (!activeChatId) {
+                showNotification('No active chat selected', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:8080/v1/chats/${activeChatId}/read`, {
+                    method: 'PUT',
+                    headers: { 'Authorization': 'Bearer ' + currentToken }
+                });
+
+                if (response.ok) {
+                    showNotification('Chat marked as read', 'success');
+                } else {
+                    const data = await response.json();
+                    throw new Error(data.error?.message || 'Failed to mark as read');
+                }
+            } catch (error) {
+                showNotification(`Failed to mark as read: ${error.message}`, 'error');
+            }
+        }
+
+        // Input Event Listeners
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // Typing indicator
+        document.getElementById('messageInput').addEventListener('input', function() {
+            if (!activeChatId || !ws || ws.readyState !== WebSocket.OPEN) return;
+
+            if (typingTimeout) {
+                clearTimeout(typingTimeout);
+            } else {
+                sendWSMessage({ type: "typing_start", chat_id: activeChatId });
+            }
+
+            typingTimeout = setTimeout(() => {
+                sendWSMessage({ type: "typing_stop", chat_id: activeChatId });
+                typingTimeout = null;
+            }, 1000);
+        });
+
+        // Message type change
+        document.getElementById('messageType').addEventListener('change', function() {
+            const type = this.value;
+            const attachmentInput = document.getElementById('attachmentUrl');
+            const offerInput = document.getElementById('offerPrice');
+            
+            attachmentInput.style.display = 'none';
+            offerInput.style.display = 'none';
+            
+            if (type === 'image') {
+                attachmentInput.style.display = 'block';
+                attachmentInput.placeholder = 'Image URL';
+            } else if (type === 'offer') {
+                offerInput.style.display = 'block';
+            }
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            logMessage('SYSTEM', 'Modern chat testing interface loaded', 'success');
+            showNotification('Welcome to PasargameX Chat Testing!', 'info');
+        });
+    </script>
+</body>
+</html>
