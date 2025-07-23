@@ -109,6 +109,198 @@
             overflow-y: auto;
         }
 
+        .user-profile-card {
+            background: var(--light-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .user-profile-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .user-info h4 {
+            margin: 0;
+            font-size: 14px;
+            color: var(--text-color);
+        }
+
+        .user-info p {
+            margin: 2px 0 0 0;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .chat-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+        }
+
+        .chat-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border: 1px solid var(--border-color);
+        }
+
+        .chat-item:hover {
+            background: var(--light-bg);
+        }
+
+        .chat-item.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .chat-item-info {
+            flex: 1;
+        }
+
+        .chat-item-title {
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .chat-item-preview {
+            font-size: 11px;
+            opacity: 0.7;
+        }
+
+        .chat-item-meta {
+            font-size: 10px;
+            opacity: 0.6;
+        }
+
+        .unread-badge {
+            background: var(--danger-color);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        /* Product Display in Chat */
+        .chat-product-section {
+            border-top: 1px solid var(--border-color);
+            background: var(--light-bg);
+            padding: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .product-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            gap: 12px;
+            transition: box-shadow 0.2s;
+        }
+
+        .product-card:hover {
+            box-shadow: var(--shadow);
+        }
+
+        .product-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 6px;
+            object-fit: cover;
+            background: var(--light-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .product-info {
+            flex: 1;
+        }
+
+        .product-title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 4px;
+            color: var(--text-color);
+        }
+
+        .product-price {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 6px;
+        }
+
+        .product-type {
+            background: var(--info-color);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            text-transform: uppercase;
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        .product-delivery {
+            background: var(--success-color);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            text-transform: uppercase;
+            display: inline-block;
+        }
+
+        .product-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            min-width: 80px;
+        }
+
+        .buy-instant {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .buy-middleman {
+            background: var(--warning-color);
+            color: white;
+        }
+
         .form-group {
             margin-bottom: 15px;
         }
@@ -171,6 +363,15 @@
         .btn-danger {
             background: var(--danger-color);
             color: white;
+        }
+
+        .btn-secondary {
+            background: var(--text-muted);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: var(--dark-bg);
         }
 
         .btn-sm {
@@ -456,6 +657,15 @@
             margin-bottom: 5px;
         }
 
+        .user-item span[onclick] {
+            transition: color 0.2s;
+        }
+
+        .user-item span[onclick]:hover {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
         .user-online {
             background: rgba(40, 167, 69, 0.1);
             border-left: 3px solid var(--success-color);
@@ -676,15 +886,40 @@
 
                 <hr style="margin: 20px 0; border: none; border-top: 1px solid var(--border-color);">
 
+                <!-- User Profile Search -->
                 <div class="form-group">
-                    <label class="form-label">Quick Chat Setup</label>
+                    <label class="form-label">🔍 Find User Profile</label>
+                    <input type="text" class="form-input" id="searchUserId" placeholder="Enter user ID">
+                    <button class="btn btn-info btn-sm" onclick="searchUserProfile()" style="margin-top: 8px; width: 100%;">Get User Profile</button>
+                </div>
+
+                <!-- User Profile Display -->
+                <div id="userProfileCard" style="display: none;"></div>
+
+                <hr style="margin: 20px 0; border: none; border-top: 1px solid var(--border-color);">
+
+                <!-- Active Chats List -->
+                <div class="form-group">
+                    <label class="form-label">💬 My Active Chats</label>
+                    <button class="btn btn-info btn-sm" onclick="loadMyChats()" style="margin-bottom: 10px; width: 100%;">Refresh Chats</button>
+                    <div class="chat-list" id="activeChatsList">
+                        <div style="text-align: center; color: var(--text-muted); padding: 20px;">
+                            <p>Login and click "Refresh Chats" to see your conversations</p>
+                        </div>
+                    </div>
+                </div>
+
+                <hr style="margin: 20px 0; border: none; border-top: 1px solid var(--border-color);">
+
+                <div class="form-group">
+                    <label class="form-label">Manual Chat Setup</label>
                     <input type="text" class="form-input" id="recipientId" placeholder="Recipient User ID">
                     <input type="text" class="form-input" id="productId" placeholder="Product ID (optional)" style="margin-top: 8px;">
                     <button class="btn btn-primary btn-sm" onclick="quickCreateChat()" style="margin-top: 8px; width: 100%;">Create Chat</button>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Active Chat</label>
+                    <label class="form-label">Join Chat by ID</label>
                     <input type="text" class="form-input" id="activeChatId" placeholder="Chat ID">
                     <button class="btn btn-primary btn-sm" onclick="setActiveChat()" style="margin-top: 8px; width: 100%;">Join Chat</button>
                 </div>
@@ -716,6 +951,14 @@
             </div>
 
             <div class="typing-indicator" id="typingIndicator" style="display: none;"></div>
+
+            <!-- Products Section -->
+            <div class="chat-product-section" id="chatProductSection" style="display: none;">
+                <h4 style="margin-bottom: 10px; color: var(--primary-color); font-size: 14px;">🛍️ Available Products</h4>
+                <div id="chatProductsList">
+                    <!-- Products will be loaded here -->
+                </div>
+            </div>
 
             <div class="chat-input-area">
                 <div class="chat-input-toolbar">
@@ -787,6 +1030,12 @@
         let activeChatId = '';
         let typingTimeout = null;
         let onlineUsers = new Map();
+        let myChats = [];
+        let searchedUser = null;
+        let rateLimitedUntil = null;
+        let rateLimitTimer = null;
+        let currentChatProducts = [];
+        let otherUserInChat = null;
 
         // Authentication
         async function login() {
@@ -822,6 +1071,11 @@
                     logMessage('AUTH', `Logged in as ${currentUsername} (${currentUserId})`, 'success');
                     showNotification(`Welcome ${currentUsername}!`, 'success');
                     
+                    // Auto-load user's chats after login
+                    setTimeout(() => {
+                        loadMyChats();
+                    }, 1000);
+                    
                 } else {
                     throw new Error(data.error?.message || data.message || 'Login failed');
                 }
@@ -829,6 +1083,571 @@
                 updateAuthStatus(false);
                 logMessage('AUTH', `Login failed: ${error.message}`, 'error');
                 showNotification(`Login failed: ${error.message}`, 'error');
+            }
+        }
+
+        // New: Search User Profile  
+        async function searchUserProfile() {
+            if (!currentToken) {
+                showNotification('Please login first', 'error');
+                return;
+            }
+
+            const userId = document.getElementById('searchUserId').value.trim();
+            if (!userId) {
+                showNotification('Please enter user ID', 'error');
+                return;
+            }
+
+            // Check if user is searching for themselves
+            if (userId === currentUserId) {
+                displayOwnProfile();
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:8080/v1/users/${userId}`, {
+                    headers: { 'Authorization': 'Bearer ' + currentToken }
+                });
+
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    searchedUser = data.data;
+                    displayUserProfile(searchedUser);
+                    showNotification(`Found user: ${searchedUser.username}`, 'success');
+                    logMessage('USER', `Found user ${searchedUser.username} (${searchedUser.id})`, 'success');
+                } else {
+                    throw new Error(data.error?.message || 'User not found');
+                }
+            } catch (error) {
+                showNotification(`Failed to find user: ${error.message}`, 'error');
+                logMessage('USER', `Search failed: ${error.message}`, 'error');
+                document.getElementById('userProfileCard').style.display = 'none';
+                searchedUser = null;
+            }
+        }
+
+        // New: Display Own Profile (when user searches for themselves)
+        function displayOwnProfile() {
+            const profileCard = document.getElementById('userProfileCard');
+            
+            const profileHTML = `
+                <div class="user-profile-card">
+                    <div class="user-profile-header">
+                        <div class="user-avatar">${currentUsername.charAt(0).toUpperCase()}</div>
+                        <div class="user-info">
+                            <h4>${escapeHtml(currentUsername)} <span style="color: var(--info-color); font-size: 12px;">(You)</span></h4>
+                            <p>This is your own profile</p>
+                            <p>ID: ${currentUserId}</p>
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <p style="font-size: 12px; color: var(--info-color); font-weight: 500;">
+                            ⚠️ You cannot start a chat with yourself
+                        </p>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-info btn-sm" onclick="viewMyProfile()">
+                            View Full Profile
+                        </button>
+                        <button class="btn btn-warning btn-sm" onclick="copyUserId('${currentUserId}')">
+                            Copy My ID
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            profileCard.innerHTML = profileHTML;
+            profileCard.style.display = 'block';
+            
+            showNotification('This is your own profile - you cannot chat with yourself', 'info');
+            logMessage('USER', 'User searched for their own profile', 'info');
+        }
+
+        // New: Display User Profile
+        function displayUserProfile(user) {
+            const profileCard = document.getElementById('userProfileCard');
+            
+            // Double-check: Prevent self-chat (safety check)
+            if (user.id === currentUserId) {
+                displayOwnProfile();
+                return;
+            }
+            
+            // Check if we have existing chat with this user
+            const existingChat = myChats.find(chat => 
+                chat.participants && chat.participants.includes(user.id) && 
+                chat.participants.includes(currentUserId) && 
+                chat.type === 'direct'
+            );
+
+            const profileHTML = `
+                <div class="user-profile-card">
+                    <div class="user-profile-header">
+                        <div class="user-avatar">${user.username.charAt(0).toUpperCase()}</div>
+                        <div class="user-info">
+                            <h4>${escapeHtml(user.username)}</h4>
+                            <p>${escapeHtml(user.email || 'No email')}</p>
+                            <p>ID: ${user.id}</p>
+                        </div>
+                    </div>
+                    ${existingChat ? `
+                        <div style="margin-bottom: 10px;">
+                            <p style="font-size: 12px; color: var(--success-color); font-weight: 500;">
+                                ✓ You have an existing chat with this user
+                            </p>
+                        </div>
+                    ` : ''}
+                    <div class="btn-group">
+                        ${existingChat ? `
+                            <button class="btn btn-success btn-sm" onclick="joinExistingChat('${existingChat.id}')">
+                                Open Chat
+                            </button>
+                        ` : `
+                            <button class="btn btn-primary btn-sm" onclick="startChatWithUser('${user.id}')">
+                                Start Chat
+                            </button>
+                        `}
+                        <button class="btn btn-warning btn-sm" onclick="copyUserId('${user.id}')">
+                            Copy ID
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            profileCard.innerHTML = profileHTML;
+            profileCard.style.display = 'block';
+        }
+
+        // New: Load My Chats
+        async function loadMyChats() {
+            if (!currentToken) {
+                showNotification('Please login first', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:8080/v1/chats?limit=50', {
+                    headers: { 'Authorization': 'Bearer ' + currentToken }
+                });
+
+                const data = await response.json();
+                
+                if (data.success && data.data && data.data.items) {
+                    myChats = data.data.items;
+                    displayMyChats(myChats);
+                    logMessage('CHAT', `Loaded ${myChats.length} chats`, 'success');
+                    showNotification(`Loaded ${myChats.length} chats`, 'success');
+                    
+                    // Refresh user profile display if we have a searched user
+                    if (searchedUser) {
+                        displayUserProfile(searchedUser);
+                    }
+                } else {
+                    throw new Error(data.error?.message || 'Failed to load chats');
+                }
+            } catch (error) {
+                showNotification(`Failed to load chats: ${error.message}`, 'error');
+                logMessage('CHAT', `Load chats failed: ${error.message}`, 'error');
+            }
+        }
+
+        // New: Display My Chats
+        function displayMyChats(chats) {
+            const chatsList = document.getElementById('activeChatsList');
+            
+            if (!chats || chats.length === 0) {
+                chatsList.innerHTML = `
+                    <div style="text-align: center; color: var(--text-muted); padding: 20px;">
+                        <p>No active chats found</p>
+                        <p>Start a conversation to see it here</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let chatsHTML = '';
+            chats.forEach(chat => {
+                const otherUser = chat.other_user;
+                const lastMessage = chat.last_message || 'No messages yet';
+                const unreadCount = chat.unread_count ? chat.unread_count[currentUserId] || 0 : 0;
+                const lastMessageTime = chat.last_message_at ? 
+                    new Date(chat.last_message_at).toLocaleDateString() : '';
+                
+                const chatTitle = chat.type === 'middleman' ? 
+                    `Middleman Chat (${chat.participants.length} users)` : 
+                    (otherUser ? otherUser.username : `Chat ${chat.id.substring(0, 8)}`);
+
+                const isActive = chat.id === activeChatId ? 'active' : '';
+
+                chatsHTML += `
+                    <div class="chat-item ${isActive}" onclick="joinChatFromList('${chat.id}')">
+                        <div class="user-avatar">${chatTitle.charAt(0).toUpperCase()}</div>
+                        <div class="chat-item-info">
+                            <div class="chat-item-title">${escapeHtml(chatTitle)}</div>
+                            <div class="chat-item-preview">${escapeHtml(lastMessage.substring(0, 30))}${lastMessage.length > 30 ? '...' : ''}</div>
+                            <div class="chat-item-meta">${lastMessageTime} • ${chat.type}</div>
+                        </div>
+                        ${unreadCount > 0 ? `<div class="unread-badge">${unreadCount}</div>` : ''}
+                    </div>
+                `;
+            });
+            
+            chatsList.innerHTML = chatsHTML;
+        }
+
+        // New: Join chat from list
+        function joinChatFromList(chatId) {
+            document.getElementById('activeChatId').value = chatId;
+            setActiveChat();
+            
+            // Update active chat styling
+            document.querySelectorAll('.chat-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+        }
+
+        // New: Join existing chat
+        function joinExistingChat(chatId) {
+            document.getElementById('activeChatId').value = chatId;
+            setActiveChat();
+        }
+
+        // New: View My Profile (redirect to profile API)
+        async function viewMyProfile() {
+            if (!currentToken) {
+                showNotification('Please login first', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:8080/v1/users/me', {
+                    headers: { 'Authorization': 'Bearer ' + currentToken }
+                });
+
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    showNotification('Profile loaded successfully!', 'success');
+                    logMessage('USER', `Loaded own profile: ${data.data.username}`, 'success');
+                    
+                    // Display full profile information
+                    const profileCard = document.getElementById('userProfileCard');
+                    const fullProfileHTML = `
+                        <div class="user-profile-card">
+                            <div class="user-profile-header">
+                                <div class="user-avatar">${data.data.username.charAt(0).toUpperCase()}</div>
+                                <div class="user-info">
+                                    <h4>${escapeHtml(data.data.username)} <span style="color: var(--info-color); font-size: 12px;">(You)</span></h4>
+                                    <p><strong>Email:</strong> ${escapeHtml(data.data.email || 'No email')}</p>
+                                    <p><strong>Phone:</strong> ${escapeHtml(data.data.phone || 'Not set')}</p>
+                                    <p><strong>Bio:</strong> ${escapeHtml(data.data.bio || 'No bio set')}</p>
+                                    <p><strong>ID:</strong> ${data.data.id}</p>
+                                </div>
+                            </div>
+                            <div style="margin-bottom: 10px;">
+                                <p style="font-size: 12px; color: var(--info-color); font-weight: 500;">
+                                    📋 Your complete profile information
+                                </p>
+                            </div>
+                            <div class="btn-group">
+                                <button class="btn btn-warning btn-sm" onclick="copyUserId('${data.data.id}')">
+                                    Copy My ID
+                                </button>
+                                <button class="btn btn-secondary btn-sm" onclick="document.getElementById('userProfileCard').style.display='none'">
+                                    Close
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    profileCard.innerHTML = fullProfileHTML;
+                } else {
+                    throw new Error(data.error?.message || 'Failed to load profile');
+                }
+            } catch (error) {
+                showNotification(`Failed to load profile: ${error.message}`, 'error');
+                logMessage('USER', `Profile load failed: ${error.message}`, 'error');
+            }
+        }
+
+        // New: Start chat with user
+        async function startChatWithUser(userId) {
+            if (!currentToken) {
+                showNotification('Please login first', 'error');
+                return;
+            }
+
+            // Prevent self-chat
+            if (userId === currentUserId) {
+                showNotification('You cannot start a chat with yourself!', 'error');
+                logMessage('CHAT', 'Attempted to start chat with self - blocked', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:8080/v1/chats', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + currentToken
+                    },
+                    body: JSON.stringify({
+                        recipient_id: userId,
+                        initial_message: "Hello! I found your profile and would like to chat."
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success && data.data.id) {
+                    document.getElementById('activeChatId').value = data.data.id;
+                    setActiveChat();
+                    loadMyChats(); // Refresh chat list
+                    showNotification('Chat started successfully!', 'success');
+                    logMessage('CHAT', `Started chat ${data.data.id}`, 'success');
+                } else {
+                    throw new Error(data.error?.message || 'Failed to start chat');
+                }
+            } catch (error) {
+                showNotification(`Failed to start chat: ${error.message}`, 'error');
+                logMessage('CHAT', `Start chat failed: ${error.message}`, 'error');
+            }
+        }
+
+        // New: Copy user ID
+        function copyUserId(userId) {
+            navigator.clipboard.writeText(userId).then(() => {
+                showNotification('User ID copied to clipboard!', 'success');
+            }).catch(() => {
+                showNotification('Failed to copy user ID', 'error');
+            });
+        }
+
+        // New: Load Products for Chat
+        async function loadChatProducts() {
+            if (!activeChatId || !currentToken) return;
+
+            try {
+                // First, get chat details to identify the other user
+                const chatResponse = await fetch(`http://localhost:8080/v1/chats/${activeChatId}`, {
+                    headers: { 'Authorization': 'Bearer ' + currentToken }
+                });
+
+                const chatData = await chatResponse.json();
+                
+                if (!chatData.success || !chatData.data) {
+                    throw new Error('Failed to get chat details');
+                }
+
+                const chat = chatData.data;
+                otherUserInChat = chat.other_user;
+                
+                // Find the other user (not current user) to load their products
+                if (!otherUserInChat && chat.participants) {
+                    const otherUserId = chat.participants.find(id => id !== currentUserId);
+                    if (otherUserId) {
+                        // Get user details
+                        const userResponse = await fetch(`http://localhost:8080/v1/users/${otherUserId}`, {
+                            headers: { 'Authorization': 'Bearer ' + currentToken }
+                        });
+                        const userData = await userResponse.json();
+                        if (userData.success) {
+                            otherUserInChat = userData.data;
+                        }
+                    }
+                }
+
+                if (!otherUserInChat) {
+                    // Hide products section if no other user
+                    document.getElementById('chatProductSection').style.display = 'none';
+                    return;
+                }
+
+                // Load products from the other user
+                const productsResponse = await fetch(`http://localhost:8080/v1/products/seller/${otherUserInChat.id}?status=active&limit=10`, {
+                    headers: { 'Authorization': 'Bearer ' + currentToken }
+                });
+
+                const productsData = await productsResponse.json();
+                
+                if (productsData.success && productsData.data && productsData.data.items) {
+                    currentChatProducts = productsData.data.items;
+                    displayChatProducts(currentChatProducts);
+                    
+                    if (currentChatProducts.length > 0) {
+                        document.getElementById('chatProductSection').style.display = 'block';
+                        logMessage('PRODUCTS', `Loaded ${currentChatProducts.length} products from ${otherUserInChat.username}`, 'success');
+                    } else {
+                        document.getElementById('chatProductSection').style.display = 'none';
+                    }
+                } else {
+                    document.getElementById('chatProductSection').style.display = 'none';
+                }
+
+            } catch (error) {
+                logMessage('PRODUCTS', `Failed to load products: ${error.message}`, 'error');
+                document.getElementById('chatProductSection').style.display = 'none';
+            }
+        }
+
+        // New: Display Products in Chat
+        function displayChatProducts(products) {
+            const container = document.getElementById('chatProductsList');
+            
+            if (!products || products.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-muted); text-align: center;">No products available</p>';
+                return;
+            }
+
+            let productsHTML = '';
+            products.forEach(product => {
+                const imageUrl = product.images && product.images.length > 0 ? product.images[0].url : null;
+                const deliveryMethods = product.delivery_method || 'instant';
+                
+                // Parse delivery methods
+                const canInstant = deliveryMethods.includes('instant') || deliveryMethods === 'both';
+                const canMiddleman = deliveryMethods.includes('middleman') || deliveryMethods === 'both';
+                
+                productsHTML += `
+                    <div class="product-card">
+                        <div class="product-image">
+                            ${imageUrl ? `<img src="${imageUrl}" alt="${escapeHtml(product.title)}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;">` : '🎮'}
+                        </div>
+                        <div class="product-info">
+                            <div class="product-title">${escapeHtml(product.title)}</div>
+                            <div class="product-price">$${product.price.toFixed(2)}</div>
+                            <div>
+                                <span class="product-type">${product.type}</span>
+                                <span class="product-delivery">${deliveryMethods}</span>
+                            </div>
+                        </div>
+                        <div class="product-actions">
+                            ${canInstant ? `<button class="btn btn-sm buy-instant" onclick="buyProduct('${product.id}', 'instant')">Buy Now</button>` : ''}
+                            ${canMiddleman ? `<button class="btn btn-sm buy-middleman" onclick="buyProduct('${product.id}', 'middleman')">Middleman</button>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = productsHTML;
+        }
+
+        // New: Buy Product Function
+        async function buyProduct(productId, deliveryMethod) {
+            if (!currentToken) {
+                showNotification('Please login first', 'error');
+                return;
+            }
+
+            if (!otherUserInChat) {
+                showNotification('Cannot determine seller information', 'error');
+                return;
+            }
+
+            const product = currentChatProducts.find(p => p.id === productId);
+            if (!product) {
+                showNotification('Product not found', 'error');
+                return;
+            }
+
+            // Show confirmation dialog
+            const confirmMessage = deliveryMethod === 'instant' 
+                ? `Buy "${product.title}" for $${product.price.toFixed(2)} with instant delivery?`
+                : `Buy "${product.title}" for $${product.price.toFixed(2)} with middleman protection?`;
+                
+            if (!confirm(confirmMessage)) {
+                return;
+            }
+
+            try {
+                showNotification('Creating transaction...', 'info');
+                logMessage('TRANSACTION', `Creating ${deliveryMethod} transaction for product ${product.title}`, 'info');
+
+                const response = await fetch('http://localhost:8080/v1/transactions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + currentToken
+                    },
+                    body: JSON.stringify({
+                        product_id: productId,
+                        delivery_method: deliveryMethod,
+                        notes: `Transaction initiated from chat with ${otherUserInChat.username}`
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    const transaction = data.data;
+                    
+                    showNotification(`Transaction created successfully! ID: ${transaction.id}`, 'success');
+                    logMessage('TRANSACTION', `Transaction ${transaction.id} created - Status: ${transaction.status}`, 'success');
+                    
+                    // Send notification message to chat
+                    const notificationContent = deliveryMethod === 'instant' 
+                        ? `🛒 I just purchased "${product.title}" for $${product.price.toFixed(2)} with instant delivery. Transaction ID: ${transaction.id}`
+                        : `🛒 I just initiated a purchase for "${product.title}" for $${product.price.toFixed(2)} with middleman protection. Transaction ID: ${transaction.id}`;
+                    
+                    // Send message to chat about the transaction
+                    await sendTransactionMessage(notificationContent, transaction.id, productId);
+                    
+                    // If middleman transaction, handle middleman chat creation
+                    if (deliveryMethod === 'middleman' && transaction.middleman_chat_id) {
+                        showNotification('Middleman chat created. You will be redirected shortly.', 'info');
+                        logMessage('TRANSACTION', `Middleman chat created: ${transaction.middleman_chat_id}`, 'success');
+                        
+                        // Optional: Auto-join middleman chat after a delay
+                        setTimeout(() => {
+                            if (confirm('Join the middleman chat room for this transaction?')) {
+                                document.getElementById('activeChatId').value = transaction.middleman_chat_id;
+                                setActiveChat();
+                            }
+                        }, 2000);
+                    }
+                    
+                } else {
+                    throw new Error(data.error?.message || 'Failed to create transaction');
+                }
+                
+            } catch (error) {
+                showNotification(`Failed to create transaction: ${error.message}`, 'error');
+                logMessage('TRANSACTION', `Transaction creation failed: ${error.message}`, 'error');
+            }
+        }
+
+        // New: Send Transaction Message
+        async function sendTransactionMessage(content, transactionId, productId) {
+            try {
+                const response = await fetch(`http://localhost:8080/v1/chats/${activeChatId}/messages`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + currentToken
+                    },
+                    body: JSON.stringify({
+                        content: content,
+                        type: 'system',
+                        metadata: {
+                            transaction_id: transactionId,
+                            product_id: productId,
+                            message_type: 'transaction_created'
+                        }
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Message will be received via WebSocket
+                    logMessage('CHAT', 'Transaction notification sent to chat', 'success');
+                } else {
+                    logMessage('CHAT', 'Failed to send transaction notification', 'error');
+                }
+            } catch (error) {
+                logMessage('CHAT', `Failed to send transaction message: ${error.message}`, 'error');
             }
         }
 
@@ -920,7 +1739,7 @@
                         break;
                     
                     case 'rate_limit_exceeded':
-                        showNotification('Rate limit exceeded! Slow down.', 'error');
+                        handleRateLimit(data);
                         break;
                     
                     case 'offer_update':
@@ -943,11 +1762,19 @@
                 return;
             }
 
-            const recipientId = document.getElementById('recipientId').value;
-            const productId = document.getElementById('productId').value;
+            const recipientId = document.getElementById('recipientId').value.trim();
+            const productId = document.getElementById('productId').value.trim();
 
             if (!recipientId) {
                 showNotification('Please enter recipient ID', 'error');
+                return;
+            }
+
+            // Prevent self-chat in manual setup too
+            if (recipientId === currentUserId) {
+                showNotification('You cannot create a chat with yourself!', 'error');
+                logMessage('CHAT', 'Manual chat creation with self blocked', 'error');
+                document.getElementById('recipientId').value = ''; // Clear the input
                 return;
             }
 
@@ -970,6 +1797,7 @@
                 if (data.success && data.data.id) {
                     document.getElementById('activeChatId').value = data.data.id;
                     setActiveChat();
+                    loadMyChats(); // Refresh chat list
                     showNotification('Chat created successfully!', 'success');
                     logMessage('CHAT', `Created chat ${data.data.id}`, 'success');
                 } else {
@@ -1005,6 +1833,14 @@
             enableChatInput();
             showNotification(`Joined chat ${chatId}`, 'success');
             logMessage('CHAT', `Joined chat ${chatId}`, 'success');
+            
+            // Load products for this chat
+            loadChatProducts();
+            
+            // Refresh chat list to update active status
+            if (myChats.length > 0) {
+                displayMyChats(myChats);
+            }
         }
 
         async function loadMessages() {
@@ -1031,6 +1867,12 @@
         async function sendMessage() {
             if (!activeChatId || !currentToken) {
                 showNotification('No active chat selected', 'error');
+                return;
+            }
+
+            // Check rate limit
+            if (isRateLimited()) {
+                showNotification('You are currently rate limited. Please wait.', 'error');
                 return;
             }
 
@@ -1151,7 +1993,27 @@
                 metaHtml = `<div class="message-meta"><span class="message-time">${time}</span></div>`;
             }
 
-            const senderName = message.sender ? message.sender.username : 'Unknown';
+            // Fix username display - handle both sender object and sender_id
+            let senderName = 'Unknown';
+            if (message.sender && message.sender.username) {
+                senderName = message.sender.username;
+            } else if (message.sender_id) {
+                // Try to get username from our chat participants or online users
+                if (message.sender_id === currentUserId) {
+                    senderName = currentUsername || 'You';
+                } else {
+                    // Try to find sender in our chats data
+                    const foundChat = myChats.find(chat => chat.participants && chat.participants.includes(message.sender_id));
+                    if (foundChat && foundChat.other_user && foundChat.other_user.id === message.sender_id) {
+                        senderName = foundChat.other_user.username;
+                    } else {
+                        senderName = `User ${message.sender_id.substring(0, 8)}`;
+                    }
+                }
+            } else if (message.type === 'system') {
+                senderName = 'System';
+            }
+            
             const senderHtml = !isSelf && message.type !== 'system' ? `<div class="message-sender">${escapeHtml(senderName)}</div>` : '';
 
             messageDiv.innerHTML = `
@@ -1255,6 +2117,72 @@
             return div.innerHTML;
         }
 
+        // Rate Limit Handler
+        function handleRateLimit(data) {
+            const waitTime = data.wait_time || 60; // Default to 60 seconds
+            const message = data.message || 'Rate limit exceeded. Please slow down.';
+            
+            rateLimitedUntil = Date.now() + (waitTime * 1000);
+            
+            // Disable send button and show countdown
+            const sendBtn = document.getElementById('sendBtn');
+            const messageInput = document.getElementById('messageInput');
+            
+            sendBtn.disabled = true;
+            messageInput.disabled = true;
+            messageInput.placeholder = `Rate limited - wait ${Math.ceil(waitTime)}s`;
+            
+            showNotification(message, 'error');
+            logMessage('RATE_LIMIT', `Rate limited for ${waitTime} seconds`, 'error');
+            
+            // Clear any existing timer
+            if (rateLimitTimer) {
+                clearInterval(rateLimitTimer);
+            }
+            
+            // Start countdown timer
+            rateLimitTimer = setInterval(() => {
+                const remaining = Math.max(0, rateLimitedUntil - Date.now());
+                
+                if (remaining <= 0) {
+                    // Rate limit expired
+                    clearInterval(rateLimitTimer);
+                    rateLimitTimer = null;
+                    rateLimitedUntil = null;
+                    
+                    sendBtn.disabled = false;
+                    messageInput.disabled = false;
+                    messageInput.placeholder = 'Type a message...';
+                    
+                    showNotification('You can now send messages again', 'success');
+                    logMessage('RATE_LIMIT', 'Rate limit expired', 'success');
+                } else {
+                    // Update countdown
+                    const seconds = Math.ceil(remaining / 1000);
+                    messageInput.placeholder = `Rate limited - wait ${seconds}s`;
+                    sendBtn.textContent = `${seconds}s`;
+                }
+            }, 1000);
+        }
+
+        // Check if currently rate limited
+        function isRateLimited() {
+            if (rateLimitedUntil && Date.now() < rateLimitedUntil) {
+                return true;
+            }
+            
+            // Clean up if expired
+            if (rateLimitedUntil && Date.now() >= rateLimitedUntil) {
+                rateLimitedUntil = null;
+                if (rateLimitTimer) {
+                    clearInterval(rateLimitTimer);
+                    rateLimitTimer = null;
+                }
+            }
+            
+            return false;
+        }
+
         // Event Handlers
         function handleNewMessage(data) {
             if (data.chat_id === activeChatId) {
@@ -1270,6 +2198,13 @@
                         chat_id: data.chat_id, 
                         data: { message_id: data.message.id } 
                     });
+                }
+                
+                // Refresh chat list when new message arrives
+                if (myChats.length > 0) {
+                    setTimeout(() => {
+                        loadMyChats();
+                    }, 500);
                 }
             }
         }
@@ -1333,7 +2268,9 @@
                 userDiv.className = `user-item ${user.isOnline ? 'user-online' : 'user-offline'}`;
                 userDiv.innerHTML = `
                     <div class="user-status-dot ${user.isOnline ? 'user-status-online' : 'user-status-offline'}"></div>
-                    <span>${user.username} ${user.isOnline ? '(Online)' : '(Offline)'}</span>
+                    <span onclick="copyUserId('${userId}')" style="cursor: pointer; flex: 1;" title="Click to copy ID">
+                        ${user.username} ${user.isOnline ? '(Online)' : '(Offline)'}
+                    </span>
                 `;
                 container.appendChild(userDiv);
             });
@@ -1356,12 +2293,18 @@
                 return;
             }
             
-            logMessage('TEST', 'Starting rate limit test...', 'info');
-            for (let i = 0; i < 35; i++) {
+            logMessage('TEST', 'Starting rate limit test - sending 15 messages rapidly...', 'info');
+            showNotification('Sending 15 messages rapidly to test rate limiter', 'info');
+            
+            for (let i = 0; i < 15; i++) {
                 setTimeout(() => {
-                    document.getElementById('messageInput').value = `Rate test ${i + 1}`;
-                    sendMessage();
-                }, i * 100);
+                    if (!isRateLimited()) {
+                        document.getElementById('messageInput').value = `Rate test message ${i + 1} - testing spam protection`;
+                        sendMessage();
+                    } else {
+                        logMessage('TEST', `Message ${i + 1} blocked by rate limiter`, 'info');
+                    }
+                }, i * 500); // Send every 500ms to trigger rate limit
             }
         }
 
@@ -1487,10 +2430,36 @@
             }
         });
 
+        // Input validation helpers
+        function validateUserIdInput(inputElement) {
+            const userId = inputElement.value.trim();
+            if (userId === currentUserId && currentUserId) {
+                inputElement.style.borderColor = 'var(--danger-color)';
+                inputElement.title = 'You cannot use your own ID here';
+                return false;
+            } else {
+                inputElement.style.borderColor = '';
+                inputElement.title = '';
+                return true;
+            }
+        }
+
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             logMessage('SYSTEM', 'Modern chat testing interface loaded', 'success');
             showNotification('Welcome to PasargameX Chat Testing!', 'info');
+            
+            // Add real-time validation to user ID inputs
+            const recipientIdInput = document.getElementById('recipientId');
+            const searchUserIdInput = document.getElementById('searchUserId');
+            
+            recipientIdInput.addEventListener('input', function() {
+                validateUserIdInput(this);
+            });
+            
+            searchUserIdInput.addEventListener('input', function() {
+                validateUserIdInput(this);
+            });
         });
     </script>
 </body>
