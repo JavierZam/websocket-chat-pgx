@@ -414,6 +414,104 @@
             background: var(--text-muted);
         }
 
+        /* Image Preview Styles */
+        .image-preview-container {
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: #f8f9fa;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .image-preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 8px;
+        }
+
+        .image-preview-item {
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 2px solid transparent;
+            transition: border-color 0.3s;
+        }
+
+        .image-preview-item.uploading {
+            border-color: #ffc107;
+        }
+
+        .image-preview-item.uploaded {
+            border-color: #28a745;
+        }
+
+        .image-preview-item.error {
+            border-color: #dc3545;
+        }
+
+        .image-preview-thumb {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .image-preview-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .image-preview-item.uploaded .image-preview-overlay {
+            display: none;
+        }
+
+        .image-preview-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #fff;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .image-preview-remove {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 18px;
+            height: 18px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 10px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .image-preview-item.uploaded .image-preview-remove {
+            display: flex;
+        }
+
         .controls-panel {
             background: white;
             border-radius: var(--border-radius);
@@ -641,6 +739,12 @@
                 <div id="authStatus" class="status-indicator status-disconnected">Not Authenticated</div>
                 <div id="wsStatus" class="status-indicator status-disconnected">WebSocket Disconnected</div>
                 <div style="font-size: 12px; color: var(--text-muted);" id="currentUser">Not logged in</div>
+                <div id="userRoleDisplay" class="status-indicator" style="display: none; background: var(--info-color);">
+                    <span id="userRoleText">Unknown Role</span>
+                </div>
+                <div id="rolePermissions" style="font-size: 11px; color: var(--text-muted); display: none;" title="Available permissions for your role">
+                    <span id="permissionsText">No permissions loaded</span>
+                </div>
             </div>
         </div>
 
@@ -657,7 +761,7 @@
                 
                 <div class="form-group">
                     <label class="form-label">Password</label>
-                    <input type="password" class="form-input" id="loginPassword" value="password">
+                    <input type="password" class="form-input" id="loginPassword" value="inipassword123">
                 </div>
                 
                 <div class="btn-group">
@@ -677,16 +781,83 @@
                 <hr style="margin: 20px 0; border: none; border-top: 1px solid var(--border-color);">
 
                 <div class="form-group">
-                    <label class="form-label">Quick Chat Setup</label>
+                    <label class="form-label">Direct Chat Setup</label>
                     <input type="text" class="form-input" id="recipientId" placeholder="Recipient User ID">
                     <input type="text" class="form-input" id="productId" placeholder="Product ID (optional)" style="margin-top: 8px;">
-                    <button class="btn btn-primary btn-sm" onclick="quickCreateChat()" style="margin-top: 8px; width: 100%;">Create Chat</button>
+                    <button class="btn btn-primary btn-sm" onclick="quickCreateChat()" style="margin-top: 8px; width: 100%;">Create Direct Chat</button>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">💬 Chat with Seller</label>
+                    <input type="text" class="form-input" id="productIdForChat" placeholder="Product ID">
+                    <input type="text" class="form-input" id="productChatMessage" placeholder="Initial message" style="margin-top: 8px;">
+                    <button class="btn btn-success btn-sm" onclick="createChatByProduct()" style="margin-top: 8px; width: 100%;">Chat with Seller</button>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">🛍️ Group Chat (Buyer)</label>
+                    <input type="text" class="form-input" id="groupProductId" placeholder="Product ID">
+                    <select class="form-input" id="middlemanSelect" style="margin-top: 8px;">
+                        <option value="">Select Middleman...</option>
+                    </select>
+                    <input type="text" class="form-input" id="groupMessage" placeholder="Initial message" style="margin-top: 8px;">
+                    <button class="btn btn-success btn-sm" onclick="createGroupChat()" style="margin-top: 8px; width: 100%;">Create Group Chat</button>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">🏪 Group Chat (Seller)</label>
+                    <input type="text" class="form-input" id="sellerProductId" placeholder="Your Product ID">
+                    <input type="text" class="form-input" id="buyerIdForSeller" placeholder="Buyer User ID" style="margin-top: 8px;">
+                    <select class="form-input" id="middlemanSelectSeller" style="margin-top: 8px;">
+                        <option value="">Select Middleman...</option>
+                    </select>
+                    <input type="text" class="form-input" id="sellerGroupMessage" placeholder="Initial message" style="margin-top: 8px;">
+                    <button class="btn btn-warning btn-sm" onclick="createSellerGroupChat()" style="margin-top: 8px; width: 100%;">Invite to Group Chat</button>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Active Chat</label>
                     <input type="text" class="form-input" id="activeChatId" placeholder="Chat ID">
                     <button class="btn btn-primary btn-sm" onclick="setActiveChat()" style="margin-top: 8px; width: 100%;">Join Chat</button>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">📋 My Chats</label>
+                    <div class="btn-group" style="margin-bottom: 8px;">
+                        <button class="btn btn-info btn-sm" onclick="loadChatsByType('all')" style="width: 33%;">All</button>
+                        <button class="btn btn-primary btn-sm" onclick="loadChatsByType('individual')" style="width: 33%;">💬 Direct</button>
+                        <button class="btn btn-success btn-sm" onclick="loadChatsByType('group')" style="width: 34%;">👥 Group</button>
+                    </div>
+                    <div id="chatsList" style="max-height: 200px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 4px; padding: 8px; background: var(--light-bg); display: none;">
+                        <!-- Chat list will be populated here -->
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">🔍 Role Detection</label>
+                    <div class="btn-group">
+                        <button class="btn btn-info btn-sm" onclick="checkMyRole()" style="width: 100%; margin-bottom: 5px;">Check My Role</button>
+                        <button class="btn btn-info btn-sm" onclick="getChatParticipants()" style="width: 100%;">Show All Participants</button>
+                    </div>
+                    <div id="roleInfo" style="margin-top: 8px; padding: 8px; background: var(--light-bg); border-radius: 4px; font-size: 12px; display: none;"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">🎯 Universal Transaction Chat</label>
+                    <select class="form-input" id="buyerSelect" style="margin-bottom: 8px;">
+                        <option value="">Select Buyer...</option>
+                    </select>
+                    <select class="form-input" id="sellerSelect" style="margin-bottom: 8px;">
+                        <option value="">Select Seller...</option>
+                    </select>
+                    <select class="form-input" id="productSelect" style="margin-bottom: 8px;">
+                        <option value="">Select Product...</option>
+                    </select>
+                    <select class="form-input" id="transactionMiddlemanSelect" style="margin-bottom: 8px;">
+                        <option value="">Select Middleman...</option>
+                    </select>
+                    <input type="text" class="form-input" id="transactionMessage" placeholder="Initial message" style="margin-bottom: 8px;">
+                    <button class="btn btn-success btn-sm" onclick="createTransactionChat()" style="width: 100%;">Create Transaction Chat</button>
                 </div>
             </div>
         </div>
@@ -699,11 +870,23 @@
                     <div class="chat-details">
                         <h3 id="chatTitle">Select a chat to start</h3>
                         <div class="chat-status" id="chatStatus">No active chat</div>
+                        <div id="participantRoles" style="display: none; margin-top: 8px; padding: 8px; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; font-size: 12px;">
+                            <!-- Participant roles will be displayed here -->
+                        </div>
+                        <div id="productContext" style="display: none; margin-top: 8px; padding: 8px; background: var(--light-bg); border-radius: 4px; font-size: 12px;">
+                            <strong>Product:</strong> <span id="productTitle">-</span><br>
+                            <strong>Price:</strong> $<span id="productPrice">0</span><br>
+                            <strong>Delivery:</strong> <span id="productDelivery">-</span>
+                        </div>
                     </div>
                 </div>
                 <div class="btn-group">
                     <button class="btn btn-sm btn-primary" onclick="loadMessages()">Refresh</button>
                     <button class="btn btn-sm btn-warning" onclick="markAsRead()">Mark Read</button>
+                    <div id="purchaseButtons" style="display: none; margin-top: 8px;">
+                        <button class="btn btn-sm btn-success" onclick="purchaseCurrentProduct()" id="purchaseCurrentBtn">Purchase This Item</button>
+                        <button class="btn btn-sm btn-info" onclick="showSellerProducts()" id="purchaseOthersBtn">Purchase Other Products</button>
+                    </div>
                 </div>
             </div>
 
@@ -726,6 +909,8 @@
                     </select>
                     
                     <input type="text" id="attachmentUrl" class="form-input" placeholder="Attachment URL" style="display: none;">
+                    <input type="file" id="imageFiles" class="form-input" multiple accept="image/*" style="display: none;">
+                    <div id="imagePreviewContainer" class="image-preview-container" style="display: none;"></div>
                     <input type="number" id="offerPrice" class="form-input" placeholder="Price" style="display: none; width: 100px;">
                 </div>
 
@@ -784,6 +969,7 @@
         let currentToken = '';
         let currentUserId = '';
         let currentUsername = '';
+        let currentUserRole = '';
         let activeChatId = '';
         let typingTimeout = null;
         let onlineUsers = new Map();
@@ -812,15 +998,26 @@
                         currentToken = data.data.token;
                         currentUserId = data.data.user.id;
                         currentUsername = data.data.user.username;
+                        currentUserRole = data.data.user.role || 'user';
                     } else if (data.token) {
                         currentToken = data.token;
                         currentUserId = data.user.id;
                         currentUsername = data.user.username;
+                        currentUserRole = data.user.role || 'user';
                     }
                     
                     updateAuthStatus(true);
                     logMessage('AUTH', `Logged in as ${currentUsername} (${currentUserId})`, 'success');
                     showNotification(`Welcome ${currentUsername}!`, 'success');
+                    
+                    // Load available middlemen after successful login
+                    loadMiddlemen();
+                    
+                    // Load current user role and permissions
+                    loadCurrentUserRole();
+                    
+                    // Load users and middlemen for transaction chat
+                    loadUsersForTransactionChat();
                     
                 } else {
                     throw new Error(data.error?.message || data.message || 'Login failed');
@@ -830,6 +1027,90 @@
                 logMessage('AUTH', `Login failed: ${error.message}`, 'error');
                 showNotification(`Login failed: ${error.message}`, 'error');
             }
+        }
+
+        // Load current user's global role and permissions
+        async function loadCurrentUserRole() {
+            if (!currentToken) return;
+
+            try {
+                // First try to get user info to determine global role
+                const response = await fetch('http://localhost:8080/v1/users/me', {
+                    headers: { 'Authorization': 'Bearer ' + currentToken }
+                });
+
+                const data = await response.json();
+                
+                console.log('User Profile API Response:', data); // Debug log
+                
+                if (data.success && data.data) {
+                    const userRole = data.data.role || 'user';
+                    updateUserRoleDisplay(userRole);
+                    logMessage('ROLE', `Global user role: ${userRole}`, 'success');
+                    logMessage('DEBUG', `Full profile data: ${JSON.stringify(data.data)}`, 'info');
+                } else {
+                    // Fallback: assume role based on available actions
+                    updateUserRoleDisplay('user');
+                    logMessage('ROLE', 'Using default user role', 'info');
+                    logMessage('DEBUG', `Profile API failed: ${JSON.stringify(data)}`, 'error');
+                }
+            } catch (error) {
+                // Fallback: determine role based on available functionality
+                updateUserRoleDisplay('user');
+                logMessage('ROLE', `Role detection fallback: ${error.message}`, 'warning');
+            }
+        }
+
+        // Update user role display and permissions
+        function updateUserRoleDisplay(role) {
+            const roleDisplay = document.getElementById('userRoleDisplay');
+            const roleText = document.getElementById('userRoleText');
+            const permissionsDiv = document.getElementById('rolePermissions');
+            const permissionsText = document.getElementById('permissionsText');
+
+            // Show role display
+            roleDisplay.style.display = 'block';
+            permissionsDiv.style.display = 'block';
+
+            // Set role text and color
+            roleText.textContent = role.toUpperCase();
+            
+            // Define role colors and permissions
+            let roleColor, permissions;
+            
+            switch(role.toLowerCase()) {
+                case 'admin':
+                    roleColor = 'linear-gradient(135deg, #ffc107, #ffca2c)'; // Yellow gradient for admin/middleman
+                    permissions = ['✓ Create any chat', '✓ Join all chats', '✓ Manage transactions', '✓ Middleman access'];
+                    break;
+                case 'seller':
+                    roleColor = 'linear-gradient(135deg, #28a745, #34ce57)'; // Green gradient for seller
+                    permissions = ['✓ Create seller group chats', '✓ Sell products', '✓ Invite buyers'];
+                    break;
+                case 'buyer':
+                    roleColor = 'linear-gradient(135deg, #007bff, #0d6efd)'; // Blue gradient for buyer
+                    permissions = ['✓ Create buyer group chats', '✓ Buy products', '✓ Request middleman'];
+                    break;
+                default:
+                    roleColor = 'linear-gradient(135deg, #6c757d, #868e96)'; // Gray gradient for default user
+                    permissions = ['✓ Basic chat access', '✓ Send messages'];
+            }
+
+            roleDisplay.style.backgroundImage = roleColor;
+            roleDisplay.style.color = 'white';
+            roleDisplay.style.textShadow = '0 1px 2px rgba(0,0,0,0.3)';
+            permissionsText.textContent = permissions.join(' • ');
+            permissionsText.title = permissions.join('\n');
+            
+            // Update UI elements based on role
+            updateUIBasedOnRole(role);
+        }
+
+        // Update UI elements based on user role - Simplified (no visual changes)
+        function updateUIBasedOnRole(role) {
+            // No longer change opacity or visibility - just show role info
+            // All UI elements remain fully visible and usable regardless of role
+            console.log(`UI updated for role: ${role} - All features remain accessible`);
         }
 
         // WebSocket Connection
@@ -928,6 +1209,10 @@
                         showNotification(`Offer ${data.status}!`, 'success');
                         break;
                     
+                    case 'group_chat_created':
+                        handleGroupChatCreated(data);
+                        break;
+                    
                     default:
                         logMessage('WS', `Unknown message type: ${data.type}`, 'info');
                 }
@@ -981,6 +1266,439 @@
             }
         }
 
+        // Load available middlemen on page load
+        async function loadMiddlemen() {
+            if (!currentToken) return;
+
+            try {
+                const response = await fetch('http://localhost:8080/v1/chats/middlemen', {
+                    headers: { 'Authorization': 'Bearer ' + currentToken }
+                });
+
+                const data = await response.json();
+                
+                if (data.success && data.data.middlemen) {
+                    const middlemanSelect = document.getElementById('middlemanSelect');
+                    const middlemanSelectSeller = document.getElementById('middlemanSelectSeller');
+                    
+                    // Clear existing options
+                    middlemanSelect.innerHTML = '<option value="">Select Middleman...</option>';
+                    middlemanSelectSeller.innerHTML = '<option value="">Select Middleman...</option>';
+                    
+                    data.data.middlemen.forEach(middleman => {
+                        const option1 = document.createElement('option');
+                        option1.value = middleman.id;
+                        option1.textContent = `${middleman.username} (${middleman.email})`;
+                        middlemanSelect.appendChild(option1);
+
+                        const option2 = document.createElement('option');
+                        option2.value = middleman.id;
+                        option2.textContent = `${middleman.username} (${middleman.email})`;
+                        middlemanSelectSeller.appendChild(option2);
+                    });
+                    
+                    logMessage('MIDDLEMEN', `Loaded ${data.data.middlemen.length} available middlemen`, 'success');
+                } else {
+                    throw new Error(data.error?.message || 'Failed to load middlemen');
+                }
+            } catch (error) {
+                logMessage('MIDDLEMEN', `Load failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Create group chat (buyer initiated)
+        async function createGroupChat() {
+            if (!currentToken) {
+                showNotification('Please login first', 'error');
+                return;
+            }
+
+            const productId = document.getElementById('groupProductId').value;
+            const middlemanId = document.getElementById('middlemanSelect').value;
+            const initialMessage = document.getElementById('groupMessage').value;
+
+            if (!productId || !middlemanId) {
+                showNotification('Please enter product ID and select middleman', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:8080/v1/chats/group', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + currentToken
+                    },
+                    body: JSON.stringify({
+                        product_id: productId,
+                        middleman_id: middlemanId,
+                        initial_message: initialMessage || "Group transaction chat created!"
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success && data.data.id) {
+                    document.getElementById('activeChatId').value = data.data.id;
+                    setActiveChat();
+                    showNotification('Group chat created successfully!', 'success');
+                    logMessage('CHAT', `Created group chat ${data.data.id}`, 'success');
+                    
+                    // Clear form
+                    document.getElementById('groupProductId').value = '';
+                    document.getElementById('middlemanSelect').value = '';
+                    document.getElementById('groupMessage').value = '';
+                } else {
+                    throw new Error(data.error?.message || 'Failed to create group chat');
+                }
+            } catch (error) {
+                showNotification(`Failed to create group chat: ${error.message}`, 'error');
+                logMessage('CHAT', `Group create failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Create seller group chat (seller initiated)
+        async function createSellerGroupChat() {
+            if (!currentToken) {
+                showNotification('Please login first', 'error');
+                return;
+            }
+
+            const productId = document.getElementById('sellerProductId').value;
+            const buyerId = document.getElementById('buyerIdForSeller').value;
+            const middlemanId = document.getElementById('middlemanSelectSeller').value;
+            const initialMessage = document.getElementById('sellerGroupMessage').value;
+
+            if (!productId || !buyerId || !middlemanId) {
+                showNotification('Please fill all required fields', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:8080/v1/chats/group/seller', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + currentToken
+                    },
+                    body: JSON.stringify({
+                        product_id: productId,
+                        buyer_id: buyerId,
+                        middleman_id: middlemanId,
+                        initial_message: initialMessage || "Seller invites you to group transaction!"
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success && data.data.id) {
+                    document.getElementById('activeChatId').value = data.data.id;
+                    setActiveChat();
+                    showNotification('Seller group chat created successfully!', 'success');
+                    logMessage('CHAT', `Created seller group chat ${data.data.id}`, 'success');
+                    
+                    // Clear form
+                    document.getElementById('sellerProductId').value = '';
+                    document.getElementById('buyerIdForSeller').value = '';
+                    document.getElementById('middlemanSelectSeller').value = '';
+                    document.getElementById('sellerGroupMessage').value = '';
+                } else {
+                    throw new Error(data.error?.message || 'Failed to create seller group chat');
+                }
+            } catch (error) {
+                showNotification(`Failed to create seller group chat: ${error.message}`, 'error');
+                logMessage('CHAT', `Seller group create failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Check current user's role in active chat
+        async function checkMyRole() {
+            if (!activeChatId || !currentToken) {
+                showNotification('Please join a chat first', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:8080/v1/chats/${activeChatId}/role`, {
+                    headers: { 'Authorization': 'Bearer ' + currentToken }
+                });
+
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    const roleInfo = document.getElementById('roleInfo');
+                    roleInfo.style.display = 'block';
+                    roleInfo.innerHTML = `
+                        <strong>Your Role:</strong> ${data.data.role.toUpperCase()}<br>
+                        <strong>Chat ID:</strong> ${data.data.chat_id}<br>
+                        <strong>User ID:</strong> ${data.data.user_id}
+                    `;
+                    
+                    showNotification(`Your role: ${data.data.role}`, 'success');
+                    logMessage('ROLE', `Current user role: ${data.data.role}`, 'success');
+                } else {
+                    throw new Error(data.error?.message || 'Failed to get user role');
+                }
+            } catch (error) {
+                showNotification(`Failed to get role: ${error.message}`, 'error');
+                logMessage('ROLE', `Role check failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Get all chat participants with their roles
+        async function getChatParticipants() {
+            if (!activeChatId || !currentToken) {
+                showNotification('Please join a chat first', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:8080/v1/chats/${activeChatId}/participants`, {
+                    headers: { 'Authorization': 'Bearer ' + currentToken }
+                });
+
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    const roleInfo = document.getElementById('roleInfo');
+                    roleInfo.style.display = 'block';
+                    
+                    let participantsHtml = '<strong>All Participants:</strong><br>';
+                    
+                    if (data.data.participants && data.data.participants.length > 0) {
+                        data.data.participants.forEach(participant => {
+                            const roleColor = participant.role === 'seller' ? '#28a745' : 
+                                            participant.role === 'buyer' ? '#007bff' : 
+                                            participant.role === 'middleman' ? '#ffc107' : '#6c757d';
+                            
+                            participantsHtml += `
+                                <div style="margin: 4px 0; padding: 4px; background: ${roleColor}15; border-left: 3px solid ${roleColor};">
+                                    <strong style="color: ${roleColor};">${participant.role.toUpperCase()}</strong><br>
+                                    ID: ${participant.user_id}<br>
+                                    ${participant.username ? `Name: ${participant.username}` : ''}
+                                </div>
+                            `;
+                        });
+                    } else {
+                        participantsHtml += '<em>No participants found</em>';
+                    }
+                    
+                    roleInfo.innerHTML = participantsHtml;
+                    
+                    showNotification('Participants loaded', 'success');
+                    logMessage('PARTICIPANTS', `Loaded ${data.data.participants?.length || 0} participants`, 'success');
+                } else {
+                    throw new Error(data.error?.message || 'Failed to get participants');
+                }
+            } catch (error) {
+                showNotification(`Failed to get participants: ${error.message}`, 'error');
+                logMessage('PARTICIPANTS', `Participants load failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Create chat with seller via product ID
+        async function createChatByProduct() {
+            if (!currentToken) {
+                showNotification('Please login first', 'error');
+                return;
+            }
+
+            const productId = document.getElementById('productIdForChat').value;
+            const initialMessage = document.getElementById('productChatMessage').value;
+
+            if (!productId) {
+                showNotification('Please enter a product ID', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:8080/v1/chats/product', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + currentToken
+                    },
+                    body: JSON.stringify({
+                        product_id: productId,
+                        initial_message: initialMessage || "Hi, I'm interested in this product!"
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success && data.data.id) {
+                    document.getElementById('activeChatId').value = data.data.id;
+                    setActiveChat();
+                    showNotification(`Chat created with seller of ${data.data.product?.title || 'product'}!`, 'success');
+                    logMessage('CHAT', `Created chat ${data.data.id} via product ${productId}`, 'success');
+                    
+                    // Clear form
+                    document.getElementById('productIdForChat').value = '';
+                    document.getElementById('productChatMessage').value = '';
+                } else {
+                    throw new Error(data.error?.message || 'Failed to create chat');
+                }
+            } catch (error) {
+                showNotification(`Failed to create chat: ${error.message}`, 'error');
+                logMessage('CHAT', `Product chat create failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Load users for transaction chat creation
+        async function loadUsersForTransactionChat() {
+            if (!currentToken) return;
+
+            try {
+                const response = await fetch('http://localhost:8080/v1/chats/users', {
+                    headers: { 'Authorization': 'Bearer ' + currentToken }
+                });
+
+                const data = await response.json();
+                
+                if (data.success && data.data.users) {
+                    const buyerSelect = document.getElementById('buyerSelect');
+                    const sellerSelect = document.getElementById('sellerSelect');
+                    const transactionMiddlemanSelect = document.getElementById('transactionMiddlemanSelect');
+                    
+                    // Clear existing options
+                    buyerSelect.innerHTML = '<option value="">Select Buyer...</option>';
+                    sellerSelect.innerHTML = '<option value="">Select Seller...</option>';
+                    transactionMiddlemanSelect.innerHTML = '<option value="">Select Middleman...</option>';
+                    
+                    data.data.users.forEach(user => {
+                        // Add to buyer select
+                        const buyerOption = document.createElement('option');
+                        buyerOption.value = user.id;
+                        buyerOption.textContent = `${user.username} (${user.email}) - ${user.role}`;
+                        buyerSelect.appendChild(buyerOption);
+
+                        // Add to seller select
+                        const sellerOption = document.createElement('option');
+                        sellerOption.value = user.id;
+                        sellerOption.textContent = `${user.username} (${user.email}) - ${user.role}`;
+                        sellerSelect.appendChild(sellerOption);
+
+                        // Add to middleman select (only admin users)
+                        if (user.role === 'admin') {
+                            const middlemanOption = document.createElement('option');
+                            middlemanOption.value = user.id;
+                            middlemanOption.textContent = `${user.username} (${user.email})`;
+                            transactionMiddlemanSelect.appendChild(middlemanOption);
+                        }
+                    });
+                    
+                    logMessage('USERS', `Loaded ${data.data.users.length} users for transaction chat`, 'success');
+                    
+                    // Add event listener for seller selection change
+                    document.getElementById('sellerSelect').addEventListener('change', function(e) {
+                        if (e.target.value) {
+                            loadSellerProducts(e.target.value);
+                        } else {
+                            document.getElementById('productSelect').innerHTML = '<option value="">Select Product...</option>';
+                        }
+                    });
+                    
+                } else {
+                    throw new Error(data.error?.message || 'Failed to load users');
+                }
+            } catch (error) {
+                logMessage('USERS', `Load failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Load products for selected seller
+        async function loadSellerProducts(sellerId) {
+            if (!currentToken || !sellerId) return;
+
+            try {
+                const response = await fetch(`http://localhost:8080/v1/chats/users/${sellerId}/products`, {
+                    headers: { 'Authorization': 'Bearer ' + currentToken }
+                });
+
+                const data = await response.json();
+                
+                if (data.success && data.data.products) {
+                    const productSelect = document.getElementById('productSelect');
+                    productSelect.innerHTML = '<option value="">Select Product...</option>';
+                    
+                    data.data.products.forEach(product => {
+                        const option = document.createElement('option');
+                        option.value = product.id;
+                        option.textContent = `${product.title} - $${product.price}`;
+                        productSelect.appendChild(option);
+                    });
+                    
+                    logMessage('PRODUCTS', `Loaded ${data.data.products.length} products for seller`, 'success');
+                } else {
+                    throw new Error(data.error?.message || 'Failed to load products');
+                }
+            } catch (error) {
+                logMessage('PRODUCTS', `Load failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Create universal transaction chat
+        async function createTransactionChat() {
+            if (!currentToken) {
+                showNotification('Please login first', 'error');
+                return;
+            }
+
+            const buyerId = document.getElementById('buyerSelect').value;
+            const sellerId = document.getElementById('sellerSelect').value;
+            const productId = document.getElementById('productSelect').value;
+            const middlemanId = document.getElementById('transactionMiddlemanSelect').value;
+            const initialMessage = document.getElementById('transactionMessage').value;
+
+            if (!buyerId || !sellerId || !productId || !middlemanId) {
+                showNotification('Please fill all required fields', 'error');
+                return;
+            }
+
+            if (buyerId === sellerId) {
+                showNotification('Buyer and seller cannot be the same person', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:8080/v1/chats/transaction', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + currentToken
+                    },
+                    body: JSON.stringify({
+                        buyer_id: buyerId,
+                        seller_id: sellerId,
+                        product_id: productId,
+                        middleman_id: middlemanId,
+                        initial_message: initialMessage || "Universal transaction chat created!"
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success && data.data.id) {
+                    document.getElementById('activeChatId').value = data.data.id;
+                    setActiveChat();
+                    showNotification('Transaction chat created successfully!', 'success');
+                    logMessage('CHAT', `Created transaction chat ${data.data.id}`, 'success');
+                    
+                    // Clear form
+                    document.getElementById('buyerSelect').value = '';
+                    document.getElementById('sellerSelect').value = '';
+                    document.getElementById('productSelect').value = '';
+                    document.getElementById('transactionMiddlemanSelect').value = '';
+                    document.getElementById('transactionMessage').value = '';
+                } else {
+                    throw new Error(data.error?.message || 'Failed to create transaction chat');
+                }
+            } catch (error) {
+                showNotification(`Failed to create transaction chat: ${error.message}`, 'error');
+                logMessage('CHAT', `Transaction chat create failed: ${error.message}`, 'error');
+            }
+        }
+
         function setActiveChat() {
             const chatId = document.getElementById('activeChatId').value;
             if (!chatId) {
@@ -1007,6 +1725,123 @@
             logMessage('CHAT', `Joined chat ${chatId}`, 'success');
         }
 
+        // Load chats by type (all, individual, group)
+        async function loadChatsByType(type) {
+            if (!currentToken) {
+                showNotification('Please login first', 'error');
+                return;
+            }
+
+            let endpoint = 'http://localhost:8080/v1/chats';
+            if (type === 'individual') {
+                endpoint = 'http://localhost:8080/v1/chats/individual';
+            } else if (type === 'group') {
+                endpoint = 'http://localhost:8080/v1/chats/group';
+            }
+
+            try {
+                const response = await fetch(endpoint, {
+                    headers: { 'Authorization': 'Bearer ' + currentToken }
+                });
+
+                const data = await response.json();
+                
+                if (data.success && data.data.items) {
+                    displayChatsList(data.data.items, type);
+                    showNotification(`Loaded ${data.data.items.length} ${type} chats`, 'success');
+                    logMessage('CHATS', `Loaded ${data.data.items.length} ${type} chats`, 'success');
+                } else {
+                    throw new Error(data.error?.message || 'Failed to load chats');
+                }
+            } catch (error) {
+                showNotification(`Failed to load chats: ${error.message}`, 'error');
+                logMessage('CHATS', `Load failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Legacy function for compatibility
+        async function loadAllChats() {
+            return loadChatsByType('all');
+        }
+
+        function displayChatsList(chats, type = 'all') {
+            const container = document.getElementById('chatsList');
+            
+            if (chats.length === 0) {
+                container.innerHTML = `<p style="text-align: center; color: #6c757d; margin: 10px 0;">No ${type} chats found</p>`;
+                container.style.display = 'block';
+                return;
+            }
+
+            let chatsHtml = chats.map(chat => {
+                const isGroupChat = chat.participants && chat.participants.length > 2;
+                const chatType = isGroupChat ? '👥' : '💬';
+                const chatTitle = chat.product?.title || `Chat ${chat.id.substring(0, 8)}...`;
+                const lastMessage = chat.last_message ? 
+                    (chat.last_message.length > 30 ? chat.last_message.substring(0, 30) + '...' : chat.last_message) : 
+                    'No messages';
+                
+                const lastMessageTime = chat.last_message_at ? 
+                    new Date(chat.last_message_at).toLocaleString([], {
+                        month: '2-digit',
+                        day: '2-digit', 
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    }) : '';
+
+                // Show role information for group chats
+                let roleInfo = '';
+                if (isGroupChat && (chat.seller_id || chat.buyer_id || chat.middleman_id)) {
+                    const roles = [];
+                    if (chat.seller_id === currentUserId) roles.push('🏪 Seller');
+                    else if (chat.buyer_id === currentUserId) roles.push('🛒 Buyer');
+                    else if (chat.middleman_id === currentUserId) roles.push('⚖️ Middleman');
+                    
+                    if (roles.length > 0) {
+                        roleInfo = ` • ${roles[0]}`;
+                    }
+                }
+
+                return `
+                    <div style="
+                        border: 1px solid #ddd; 
+                        border-radius: 6px; 
+                        padding: 10px; 
+                        margin: 6px 0; 
+                        cursor: pointer; 
+                        transition: background-color 0.2s;
+                        background: white;
+                    " 
+                    onclick="selectChat('${chat.id}')"
+                    onmouseover="this.style.backgroundColor='#f8f9fa'" 
+                    onmouseout="this.style.backgroundColor='white'">
+                        <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 4px;">
+                            <div style="font-weight: bold; display: flex; align-items: center;">
+                                <span style="margin-right: 6px;">${chatType}</span>
+                                <span style="font-size: 13px;">${escapeHtml(chatTitle)}</span>
+                            </div>
+                            <div style="font-size: 10px; color: #6c757d;">${lastMessageTime}</div>
+                        </div>
+                        <div style="font-size: 11px; color: #6c757d; margin-bottom: 4px;">
+                            ${escapeHtml(lastMessage)}
+                        </div>
+                        <div style="font-size: 10px; color: #28a745;">
+                            ${isGroupChat ? `${chat.participants.length} participants` : 'Direct chat'}${roleInfo}
+                            ${chat.product?.price ? ` • $${chat.product.price.toLocaleString()}` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = chatsHtml;
+            container.style.display = 'block';
+        }
+
+        function selectChat(chatId) {
+            document.getElementById('activeChatId').value = chatId;
+            setActiveChat();
+        }
+
         async function loadMessages() {
             if (!activeChatId || !currentToken) return;
 
@@ -1018,7 +1853,7 @@
                 const data = await response.json();
                 
                 if (data.success && data.data.items) {
-                    displayMessages(data.data.items);
+                    await displayMessages(data.data.items);
                     logMessage('CHAT', `Loaded ${data.data.items.length} messages`, 'success');
                 } else {
                     throw new Error(data.error?.message || 'Failed to load messages');
@@ -1038,8 +1873,23 @@
             const messageType = document.getElementById('messageType').value;
             const attachmentUrl = document.getElementById('attachmentUrl').value;
             const offerPrice = document.getElementById('offerPrice').value;
+            const files = document.getElementById('imageFiles').files;
 
-            if (!content) return;
+            // For image type, need either attachment URL or files, plus optional content
+            if (messageType === 'image') {
+                if (!attachmentUrl && files.length === 0) {
+                    showNotification('Please provide image URL or select files to upload', 'error');
+                    return;
+                }
+                // If files are selected, upload them first
+                if (files.length > 0) {
+                    await sendMessageWithFileUpload(content, files);
+                    return;
+                }
+            } else {
+                // For non-image messages, content is required
+                if (!content) return;
+            }
 
             let messageData = {
                 content: content,
@@ -1047,7 +1897,83 @@
             };
 
             if (messageType === 'image' && attachmentUrl) {
-                messageData.attachment_url = attachmentUrl;
+                // Handle multiple image URLs separated by comma
+                const urls = attachmentUrl.split(',').map(url => url.trim()).filter(url => url);
+                if (urls.length > 1) {
+                    // Send multiple images as separate messages
+                    let successCount = 0;
+                    let failCount = 0;
+                    
+                    for (let i = 0; i < urls.length; i++) {
+                        // Only first image gets the user's text content, rest get default 'Image'
+                        const imageContent = (i === 0 && content.trim()) ? content : 'Image';
+                        const singleMessageData = {
+                            content: imageContent,
+                            type: messageType,
+                            attachment_url: urls[i]
+                        };
+                        
+                        try {
+                            const response = await fetch(`http://localhost:8080/v1/chats/${activeChatId}/messages`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': 'Bearer ' + currentToken
+                                },
+                                body: JSON.stringify(singleMessageData)
+                            });
+                            
+                            const responseData = await response.json();
+                            if (responseData.success) {
+                                // Add message to UI immediately (optimistic update)
+                                addMessageToUI(responseData.data, true);
+                                logMessage('CHAT', `Image message ${i + 1}/${urls.length} sent`, 'success');
+                                successCount++;
+                            } else {
+                                logMessage('CHAT', `Failed to send image ${i + 1}: ${responseData.message}`, 'error');
+                                failCount++;
+                            }
+                        } catch (error) {
+                            logMessage('CHAT', `Error sending image ${i + 1}: ${error.message}`, 'error');
+                            failCount++;
+                        }
+                    }
+                    
+                    // Clear inputs and previews after sending all images
+                    document.getElementById('messageInput').value = '';
+                    document.getElementById('attachmentUrl').value = '';
+                    document.getElementById('imageFiles').value = '';
+                    document.getElementById('imagePreviewContainer').innerHTML = '';
+                    
+                    // Ensure chat scrolls to bottom after all images
+                    const container = document.getElementById('chatMessages');
+                    setTimeout(() => {
+                        container.scrollTop = container.scrollHeight;
+                    }, 100);
+                    
+                    // Refresh chat messages to ensure we have the latest (in case WebSocket missed anything)
+                    setTimeout(() => {
+                        if (activeChatId) {
+                            loadChatMessages(activeChatId);
+                        }
+                    }, 500);
+                    
+                    // Stop typing indicator
+                    sendWSMessage({ type: "typing_stop", chat_id: activeChatId });
+                    
+                    logMessage('CHAT', `Sent ${successCount}/${urls.length} image messages`, successCount > 0 ? 'success' : 'error');
+                    
+                    if (successCount === urls.length) {
+                        showNotification(`Successfully sent all ${successCount} images`, 'success');
+                    } else if (successCount > 0) {
+                        showNotification(`Sent ${successCount}/${urls.length} images (${failCount} failed)`, 'warning');
+                    } else {
+                        showNotification(`Failed to send all ${urls.length} images`, 'error');
+                    }
+                    return; // Exit early since we handled multiple images
+                } else {
+                    messageData.attachment_url = urls[0] || attachmentUrl;
+                }
             } else if (messageType === 'offer' && offerPrice) {
                 messageData.metadata = {
                     price: parseFloat(offerPrice),
@@ -1071,6 +1997,8 @@
                     document.getElementById('messageInput').value = '';
                     document.getElementById('attachmentUrl').value = '';
                     document.getElementById('offerPrice').value = '';
+                    document.getElementById('imageFiles').value = '';
+                    document.getElementById('imagePreviewContainer').innerHTML = '';
                     
                     // Add message to UI immediately (optimistic update)
                     addMessageToUI(data.data, true);
@@ -1089,15 +2017,42 @@
         }
 
         // Message Display
-        function displayMessages(messages) {
+        async function displayMessages(messages) {
             const container = document.getElementById('chatMessages');
             container.innerHTML = '';
+            
+            // Load usernames for all senders
+            await loadUsernamesForMessages(messages);
             
             messages.reverse().forEach(message => {
                 addMessageToUI(message, message.sender_id === currentUserId);
             });
             
             container.scrollTop = container.scrollHeight;
+        }
+
+        // Cache usernames to avoid repeated API calls
+        window.usernameCache = window.usernameCache || {};
+
+        async function loadUsernamesForMessages(messages) {
+            const uniqueSenderIds = [...new Set(messages.map(m => m.sender_id).filter(id => id && id !== 'system'))];
+            
+            for (const senderId of uniqueSenderIds) {
+                if (!window.usernameCache[senderId]) {
+                    try {
+                        const response = await fetch(`http://localhost:8080/v1/users/${senderId}`, {
+                            headers: { 'Authorization': 'Bearer ' + currentToken }
+                        });
+                        const data = await response.json();
+                        if (data.success && data.data) {
+                            window.usernameCache[senderId] = data.data.username;
+                        }
+                    } catch (error) {
+                        console.error(`Failed to load username for ${senderId}:`, error);
+                        window.usernameCache[senderId] = 'Unknown User';
+                    }
+                }
+            }
         }
 
         function addMessageToUI(message, isSelf) {
@@ -1115,8 +2070,59 @@
             let actionsHtml = '';
 
             // Handle different message types
-            if (message.type === 'image' && message.attachment_url) {
-                contentHtml = `<img src="${message.attachment_url}" alt="Image" style="max-width: 250px; border-radius: 8px;">`;
+            if (message.type === 'image') {
+                let imagesHtml = '';
+                
+                // Set current message metadata for secure URL extraction
+                window.currentMessageMetadata = message.metadata || {};
+                
+                // Handle multiple images (new format)
+                if (message.attachment_urls && message.attachment_urls.length > 0) {
+                    // Show text content first if exists
+                    if (message.content && message.content.trim() !== 'Images' && message.content.trim() !== 'Image') {
+                        contentHtml = `<div style="margin-bottom: 8px;">${escapeHtml(message.content)}</div>`;
+                    } else {
+                        contentHtml = '';
+                    }
+                    
+                    // Create image gallery
+                    const imageCount = message.attachment_urls.length;
+                    const galleryStyle = imageCount === 1 ? 
+                        'display: block;' : 
+                        `display: grid; grid-template-columns: repeat(${Math.min(imageCount, 2)}, 1fr); gap: 4px; max-width: 300px;`;
+                    
+                    imagesHtml = `<div style="${galleryStyle}">`;
+                    message.attachment_urls.forEach(url => {
+                        const imageStyle = imageCount === 1 ? 
+                            'max-width: 250px; width: 100%;' : 
+                            'width: 100%; aspect-ratio: 1; object-fit: cover; max-width: 150px;';
+                        // Use secure proxy endpoint instead of direct storage URL
+                        const secureViewUrl = getSecureViewUrl(url);
+                        const imageId = `img_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                        imagesHtml += `<img id="${imageId}" alt="Image" style="${imageStyle} border-radius: 8px; cursor: pointer;" referrerpolicy="no-referrer" onclick="openSecureImage('${secureViewUrl}')" data-src="${url}">`;
+                        
+                        // Load image securely using fetch with auth headers
+                        setTimeout(() => loadSecureImage(imageId, url), 100);
+                    });
+                    imagesHtml += '</div>';
+                    
+                    contentHtml += imagesHtml;
+                }
+                // Handle single image (backward compatibility)
+                else if (message.attachment_url) {
+                    // Show text content first if exists
+                    if (message.content && message.content.trim() !== 'Images' && message.content.trim() !== 'Image') {
+                        contentHtml = `<div style="margin-bottom: 8px;">${escapeHtml(message.content)}</div>`;
+                    } else {
+                        contentHtml = '';
+                    }
+                    const secureViewUrl = getSecureViewUrl(message.attachment_url);
+                    const imageId = `img_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                    contentHtml += `<img id="${imageId}" alt="Image" style="max-width: 250px; border-radius: 8px; cursor: pointer;" referrerpolicy="no-referrer" onclick="openSecureImage('${secureViewUrl}')" data-src="${message.attachment_url}">`;
+                    
+                    // Load image securely using fetch with auth headers
+                    setTimeout(() => loadSecureImage(imageId, message.attachment_url), 100);
+                }
             } else if (message.type === 'offer' && message.metadata) {
                 const price = message.metadata.price || 0;
                 const status = message.metadata.status || 'pending';
@@ -1137,6 +2143,53 @@
                 }
             }
 
+            // Handle product embed in message metadata
+            if (message.metadata && message.metadata.product_embed) {
+                const productEmbed = message.metadata.product_embed;
+                const buyerInfo = message.metadata.buyer_info;
+                
+                // Create product embed card + original message text below
+                contentHtml = `
+                    <div class="product-embed" style="
+                        border: 1px solid #e1e5e9; 
+                        border-radius: 8px; 
+                        padding: 12px; 
+                        margin: 8px 0; 
+                        background: #f8f9fa;
+                    ">
+                        <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                            <div style="
+                                width: 40px; 
+                                height: 40px; 
+                                border-radius: 8px; 
+                                background: linear-gradient(45deg, #28a745 0%, #20c997 100%); 
+                                display: flex; 
+                                align-items: center; 
+                                justify-content: center; 
+                                color: white; 
+                                font-weight: bold; 
+                                margin-right: 12px;
+                                font-size: 18px;
+                            ">🎮</div>
+                            <div style="flex: 1;">
+                                <div style="font-weight: bold; color: #495057; font-size: 16px;">${escapeHtml(productEmbed.product_title)}</div>
+                                <div style="color: #28a745; font-weight: bold; font-size: 18px;">$${productEmbed.product_price.toLocaleString()}</div>
+                                <div style="font-size: 12px; color: #6c757d;">Delivery: ${escapeHtml(productEmbed.delivery_method)}</div>
+                            </div>
+                        </div>
+                        ${buyerInfo ? `
+                            <div style="border-top: 1px solid #dee2e6; padding-top: 8px; font-size: 12px; color: #6c757d;">
+                                <strong style="color: #007bff;">Interested Buyer:</strong> 
+                                <span onclick="navigateToProfile('${buyerInfo.buyer_id}')" style="color: #007bff; cursor: pointer; text-decoration: underline;">
+                                    ${escapeHtml(buyerInfo.username)}
+                                </span>
+                            </div>
+                        ` : ''}
+                    </div>
+                    <div style="margin-top: 8px; padding: 8px 0;">${escapeHtml(message.content)}</div>
+                `;
+            }
+
             // Message meta (time and status)
             const time = new Date(message.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
             if (isSelf) {
@@ -1151,7 +2204,7 @@
                 metaHtml = `<div class="message-meta"><span class="message-time">${time}</span></div>`;
             }
 
-            const senderName = message.sender ? message.sender.username : 'Unknown';
+            const senderName = window.usernameCache[message.sender_id] || 'Unknown';
             const senderHtml = !isSelf && message.type !== 'system' ? `<div class="message-sender">${escapeHtml(senderName)}</div>` : '';
 
             messageDiv.innerHTML = `
@@ -1177,6 +2230,8 @@
         function updateAuthStatus(isAuth) {
             const statusEl = document.getElementById('authStatus');
             const userEl = document.getElementById('currentUser');
+            const roleDisplay = document.getElementById('userRoleDisplay');
+            const permissionsDiv = document.getElementById('rolePermissions');
             
             if (isAuth) {
                 statusEl.textContent = 'Authenticated';
@@ -1186,6 +2241,22 @@
                 statusEl.textContent = 'Not Authenticated';
                 statusEl.className = 'status-indicator status-disconnected';
                 userEl.textContent = 'Not logged in';
+                
+                // Hide role display when not authenticated
+                roleDisplay.style.display = 'none';
+                permissionsDiv.style.display = 'none';
+                
+                // Reset UI elements
+                const sellerGroupSection = document.querySelector('div:has(#sellerProductId)')?.parentElement;
+                const buyerGroupSection = document.querySelector('div:has(#groupProductId)')?.parentElement;
+                if (sellerGroupSection) {
+                    sellerGroupSection.style.display = 'block';
+                    sellerGroupSection.style.opacity = '1';
+                }
+                if (buyerGroupSection) {
+                    buyerGroupSection.style.display = 'block';
+                    buyerGroupSection.style.opacity = '1';
+                }
             }
         }
 
@@ -1207,9 +2278,452 @@
             }
         }
 
-        function updateChatHeader(chatId) {
+        async function updateChatHeader(chatId) {
             document.getElementById('chatTitle').textContent = `Chat ${chatId.substring(0, 8)}...`;
             document.getElementById('chatStatus').textContent = 'Active chat';
+            
+            // Hide participant roles initially (will be shown for group chats)
+            document.getElementById('participantRoles').style.display = 'none';
+            
+            // Load chat details including product info
+            await loadChatDetails(chatId);
+        }
+
+        async function loadChatDetails(chatId) {
+            if (!currentToken) return;
+
+            try {
+                const response = await fetch(`http://localhost:8080/v1/chats/${chatId}`, {
+                    headers: { 'Authorization': 'Bearer ' + currentToken }
+                });
+
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    const chat = data.data;
+                    
+                    // Store chat participants for purchase button functionality
+                    window.currentChatParticipants = chat.participants || [];
+                    
+                    // Show product context if chat has product
+                    if (chat.product_id) {
+                        await showProductContext(chat.product_id);
+                        showPurchaseButtons();
+                    } else {
+                        hideProductContext();
+                    }
+                    
+                    // Update chat title with participant info and roles for group chats
+                    if (chat.participants && chat.participants.length > 2) {
+                        document.getElementById('chatTitle').textContent = `Group Chat (${chat.participants.length} members)`;
+                        
+                        // Load and display participant roles
+                        loadAndDisplayParticipantRoles(chatId);
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to load chat details:', error);
+            }
+        }
+
+        // Load and display participant roles in group chat header
+        async function loadAndDisplayParticipantRoles(chatId) {
+            if (!currentToken) return;
+
+            try {
+                const response = await fetch(`http://localhost:8080/v1/chats/${chatId}/participants`, {
+                    headers: { 'Authorization': 'Bearer ' + currentToken }
+                });
+
+                const data = await response.json();
+                
+                if (data.success && data.data && data.data.participants) {
+                    displayParticipantRoles(data.data.participants);
+                }
+            } catch (error) {
+                console.error('Failed to load participant roles:', error);
+            }
+        }
+
+        function displayParticipantRoles(participants) {
+            const container = document.getElementById('participantRoles');
+            
+            if (!participants || participants.length === 0) {
+                container.style.display = 'none';
+                return;
+            }
+
+            // Group participants by role
+            const seller = participants.find(p => p.role === 'seller');
+            const buyer = participants.find(p => p.role === 'buyer');
+            const middleman = participants.find(p => p.role === 'middleman' || p.role === 'admin');
+            
+            let rolesHtml = '<strong>👥 Transaction Participants:</strong><br>';
+            
+            if (seller) {
+                rolesHtml += `<span style="color: #28a745; font-weight: bold;">🏪 SELLER:</span> ${escapeHtml(seller.username)}<br>`;
+            }
+            
+            if (buyer) {
+                rolesHtml += `<span style="color: #007bff; font-weight: bold;">🛒 BUYER:</span> ${escapeHtml(buyer.username)}<br>`;
+            }
+            
+            if (middleman) {
+                rolesHtml += `<span style="color: #fd7e14; font-weight: bold;">⚖️ MIDDLEMAN:</span> ${escapeHtml(middleman.username)}`;
+            }
+
+            // Add role information for current user
+            const currentUserParticipant = participants.find(p => p.user_id === currentUserId);
+            if (currentUserParticipant) {
+                rolesHtml += `<br><small style="color: #6c757d;">You are the <strong>${currentUserParticipant.role.toUpperCase()}</strong></small>`;
+            }
+
+            container.innerHTML = rolesHtml;
+            container.style.display = 'block';
+        }
+
+        async function showProductContext(productId) {
+            if (!currentToken) return;
+
+            try {
+                const response = await fetch(`http://localhost:8080/v1/products/${productId}`, {
+                    headers: { 'Authorization': 'Bearer ' + currentToken }
+                });
+
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    const product = data.data;
+                    document.getElementById('productTitle').textContent = product.title;
+                    document.getElementById('productPrice').textContent = product.price.toLocaleString();
+                    document.getElementById('productDelivery').textContent = product.delivery_method || 'manual';
+                    document.getElementById('productContext').style.display = 'block';
+                    
+                    // Store current product for purchase functions
+                    window.currentChatProduct = product;
+                }
+            } catch (error) {
+                console.error('Failed to load product details:', error);
+            }
+        }
+
+        function hideProductContext() {
+            document.getElementById('productContext').style.display = 'none';
+            document.getElementById('purchaseButtons').style.display = 'none';
+            window.currentChatProduct = null;
+        }
+
+        function showPurchaseButtons() {
+            document.getElementById('purchaseButtons').style.display = 'block';
+        }
+
+        // Purchase current product in chat
+        async function purchaseCurrentProduct() {
+            if (!window.currentChatProduct) {
+                showNotification('No product selected', 'error');
+                return;
+            }
+
+            const product = window.currentChatProduct;
+            const deliveryMethod = product.delivery_method || 'manual';
+
+            if (deliveryMethod === 'instant') {
+                // Show payment options for instant delivery
+                showPaymentOptions(product);
+            } else if (deliveryMethod === 'middleman') {
+                // Show middleman selection for middleman delivery
+                showMiddlemanSelection(product);
+            } else {
+                // Manual delivery - show payment options with manual note
+                showPaymentOptions(product, 'manual');
+            }
+        }
+
+        // Show seller's other products
+        async function showSellerProducts() {
+            if (!window.currentChatProduct || !activeChatId) {
+                showNotification('No active chat or product', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:8080/v1/chats/users/${window.currentChatProduct.seller_id}/products`, {
+                    headers: { 'Authorization': 'Bearer ' + currentToken }
+                });
+
+                const data = await response.json();
+                
+                if (data.success && data.data.products) {
+                    displaySellerProductsModal(data.data.products);
+                } else {
+                    showNotification('Failed to load seller products', 'error');
+                }
+            } catch (error) {
+                showNotification(`Error: ${error.message}`, 'error');
+            }
+        }
+
+        function showPaymentOptions(product, deliveryNote = '') {
+            const modal = `
+                <div id="paymentModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center;">
+                    <div style="background: white; padding: 20px; border-radius: 8px; max-width: 400px; width: 90%;">
+                        <h3>Purchase: ${product.title}</h3>
+                        <p>Price: $${product.price.toLocaleString()}</p>
+                        ${deliveryNote ? `<p><strong>Delivery:</strong> ${deliveryNote}</p>` : ''}
+                        
+                        <div style="margin: 20px 0;">
+                            <button class="btn btn-primary" onclick="directPayment('${product.id}')" style="margin-right: 10px;">Direct Payment</button>
+                            <button class="btn btn-warning" onclick="selectMiddlemanForPayment('${product.id}')">Use Middleman</button>
+                        </div>
+                        
+                        <button class="btn btn-secondary" onclick="closeModal('paymentModal')" style="width: 100%; margin-top: 10px;">Cancel</button>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modal);
+        }
+
+        function showMiddlemanSelection(product) {
+            // Auto-detect buyer/seller based on chat context
+            if (!activeChatId || !window.currentChatParticipants) {
+                showNotification('Chat context not available', 'error');
+                return;
+            }
+
+            // Automatically determine buyer and seller from chat context
+            let buyerId, sellerId;
+            
+            // Get seller from product
+            sellerId = product.seller_id;
+            
+            // Check if current user is admin - admins should not initiate purchases
+            if (currentUserRole === 'admin') {
+                showNotification('Admin users cannot initiate purchases. Admins should only act as middlemen in transactions.', 'error');
+                return;
+            }
+            
+            // Check if current user is the seller
+            if (currentUserId === sellerId) {
+                showNotification('Sellers cannot purchase their own products', 'error');
+                return;
+            }
+            
+            // Get buyer - prioritize non-admin participants
+            const otherParticipants = window.currentChatParticipants.filter(p => p !== currentUserId && p !== sellerId);
+            if (otherParticipants.length > 0) {
+                buyerId = otherParticipants[0]; // Take the first non-seller participant
+            } else {
+                // Current user becomes the buyer (we already checked they're not seller or admin)
+                buyerId = currentUserId;
+            }
+
+            if (!buyerId || !sellerId) {
+                showNotification('Cannot determine buyer/seller from chat context', 'error');
+                return;
+            }
+
+            // Final validation: ensure all participants are different
+            if (buyerId === sellerId) {
+                showNotification('Buyer and seller cannot be the same person', 'error');
+                return;
+            }
+
+            showMiddlemanSelectionModal(product.id, buyerId, sellerId);
+        }
+
+        async function showMiddlemanSelectionModal(productId, buyerId, sellerId) {
+            try {
+                // Load available middlemen
+                const response = await fetch('http://localhost:8080/v1/chats/middlemen', {
+                    headers: { 'Authorization': 'Bearer ' + currentToken }
+                });
+                
+                const data = await response.json();
+                if (!data.success) {
+                    throw new Error(data.error?.message || 'Failed to load middlemen');
+                }
+
+                const middlemen = data.data?.middlemen || [];
+                
+                let middlemenHtml = middlemen.map(middleman => `
+                    <div style="border: 1px solid #ddd; padding: 12px; margin: 8px 0; border-radius: 6px; cursor: pointer; transition: background-color 0.2s;" 
+                         onclick="createMiddlemanTransaction('${productId}', '${buyerId}', '${sellerId}', '${middleman.id}', '${middleman.username}')"
+                         onmouseover="this.style.backgroundColor='#f8f9fa'" 
+                         onmouseout="this.style.backgroundColor='white'">
+                        <div style="display: flex; align-items: center;">
+                            <div style="width: 24px; height: 24px; border-radius: 50%; background: #28a745; color: white; display: flex; align-items: center; justify-content: center; font-size: 12px; margin-right: 8px;">
+                                ${middleman.username.charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                                <strong>${middleman.username}</strong>
+                                <div style="font-size: 12px; color: #6c757d;">${middleman.email}</div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+
+                if (middlemen.length === 0) {
+                    middlemenHtml = '<p style="text-align: center; color: #6c757d;">No middlemen available</p>';
+                }
+
+                const modal = `
+                    <div id="middlemanModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center;">
+                        <div style="background: white; padding: 20px; border-radius: 8px; max-width: 400px; width: 90%; max-height: 80%; overflow-y: auto;">
+                            <h3>🛡️ Select Middleman</h3>
+                            <p style="color: #6c757d; margin-bottom: 15px;">Choose a trusted middleman for this transaction</p>
+                            <div style="margin: 20px 0;">
+                                ${middlemenHtml}
+                            </div>
+                            <button class="btn btn-secondary" onclick="closeModal('middlemanModal')" style="width: 100%; margin-top: 10px;">Cancel</button>
+                        </div>
+                    </div>
+                `;
+                document.body.insertAdjacentHTML('beforeend', modal);
+                
+            } catch (error) {
+                showNotification(`Failed to load middlemen: ${error.message}`, 'error');
+            }
+        }
+
+        async function createMiddlemanTransaction(productId, buyerId, sellerId, middlemanId, middlemanName) {
+            try {
+                closeModal('middlemanModal');
+                
+                const response = await fetch('http://localhost:8080/v1/chats/transaction', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + currentToken
+                    },
+                    body: JSON.stringify({
+                        buyer_id: buyerId,
+                        seller_id: sellerId,
+                        product_id: productId,
+                        middleman_id: middlemanId,
+                        initial_message: `Transaction chat created with middleman ${middlemanName} for purchase request.`
+                    })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    showNotification('Middleman transaction chat created successfully!', 'success');
+                    
+                    // Navigate to the newly created chat
+                    if (data.data && data.data.id) {
+                        document.getElementById('activeChatId').value = data.data.id;
+                        setActiveChat();
+                        showNotification(`Joined new transaction chat: ${data.data.id}`, 'info');
+                    }
+                } else {
+                    throw new Error(data.error?.message || 'Failed to create transaction chat');
+                }
+            } catch (error) {
+                showNotification(`Failed to create transaction: ${error.message}`, 'error');
+            }
+        }
+
+        // Function to navigate to user profile
+        function navigateToProfile(userId) {
+            // For now, show user information in a modal
+            // In a real app, this would navigate to the user's profile page
+            showUserProfileModal(userId);
+        }
+
+        async function showUserProfileModal(userId) {
+            try {
+                const response = await fetch(`http://localhost:8080/v1/users/${userId}`, {
+                    headers: { 'Authorization': 'Bearer ' + currentToken }
+                });
+                
+                const data = await response.json();
+                if (!data.success) {
+                    throw new Error(data.error?.message || 'Failed to load user profile');
+                }
+
+                const user = data.data;
+                const modal = `
+                    <div id="profileModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center;">
+                        <div style="background: white; padding: 20px; border-radius: 8px; max-width: 400px; width: 90%;">
+                            <h3>👤 User Profile</h3>
+                            <div style="display: flex; align-items: center; margin: 15px 0;">
+                                <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(45deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 20px; margin-right: 15px;">
+                                    ${user.username.charAt(0).toUpperCase()}
+                                </div>
+                                <div>
+                                    <div style="font-weight: bold; font-size: 18px;">${escapeHtml(user.username)}</div>
+                                    <div style="color: #6c757d;">${escapeHtml(user.email)}</div>
+                                    <div style="color: #28a745; font-weight: bold; text-transform: uppercase;">${escapeHtml(user.role || 'user')}</div>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary" onclick="closeModal('profileModal')" style="width: 100%;">Close</button>
+                        </div>
+                    </div>
+                `;
+                document.body.insertAdjacentHTML('beforeend', modal);
+                
+            } catch (error) {
+                showNotification(`Failed to load profile: ${error.message}`, 'error');
+            }
+        }
+
+        function displaySellerProductsModal(products) {
+            let productsHtml = products.map(product => `
+                <div style="border: 1px solid #ddd; padding: 10px; margin: 5px 0; border-radius: 4px;">
+                    <strong>${product.title}</strong><br>
+                    Price: $${product.price.toLocaleString()}<br>
+                    Delivery: ${product.delivery_method || 'manual'}<br>
+                    <button class="btn btn-sm btn-success" onclick="purchaseSpecificProduct('${product.id}')" style="margin-top: 5px;">Purchase</button>
+                </div>
+            `).join('');
+
+            const modal = `
+                <div id="productsModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center;">
+                    <div style="background: white; padding: 20px; border-radius: 8px; max-width: 500px; width: 90%; max-height: 80%; overflow-y: auto;">
+                        <h3>Seller's Products</h3>
+                        <div style="margin: 20px 0;">
+                            ${productsHtml}
+                        </div>
+                        <button class="btn btn-secondary" onclick="closeModal('productsModal')" style="width: 100%;">Close</button>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modal);
+        }
+
+        async function purchaseSpecificProduct(productId) {
+            // Load product details and show payment options
+            try {
+                const response = await fetch(`http://localhost:8080/v1/products/${productId}`, {
+                    headers: { 'Authorization': 'Bearer ' + currentToken }
+                });
+
+                const data = await response.json();
+                if (data.success && data.data) {
+                    closeModal('productsModal');
+                    showPaymentOptions(data.data);
+                }
+            } catch (error) {
+                showNotification(`Error: ${error.message}`, 'error');
+            }
+        }
+
+        function directPayment(productId) {
+            closeModal('paymentModal');
+            showNotification('Direct payment initiated (placeholder)', 'info');
+            // TODO: Implement actual payment logic
+        }
+
+        function selectMiddlemanForPayment(productId) {
+            closeModal('paymentModal');
+            // TODO: Show middleman selection and create group chat
+            showNotification('Middleman selection (placeholder)', 'info');
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.remove();
+            }
         }
 
         function enableChatInput() {
@@ -1299,6 +2813,18 @@
                 if (statusEl) {
                     statusEl.textContent = '✓✓';
                 }
+            }
+        }
+
+        function handleGroupChatCreated(data) {
+            const message = `🎉 Group chat created by ${data.initiator} for product: ${data.product_title}`;
+            showNotification(message, 'success');
+            logMessage('GROUP', `Group chat created: ${data.chat_id}`, 'success');
+            
+            // Auto-join if this is the active chat or if you want to switch to it
+            if (confirm(`Join the new group chat for ${data.product_title}?`)) {
+                document.getElementById('activeChatId').value = data.chat_id;
+                setActiveChat();
             }
         }
 
@@ -1474,18 +3000,473 @@
         document.getElementById('messageType').addEventListener('change', function() {
             const type = this.value;
             const attachmentInput = document.getElementById('attachmentUrl');
+            const imageFiles = document.getElementById('imageFiles');
+            const previewContainer = document.getElementById('imagePreviewContainer');
             const offerInput = document.getElementById('offerPrice');
             
             attachmentInput.style.display = 'none';
+            imageFiles.style.display = 'none';
+            previewContainer.style.display = 'none';
             offerInput.style.display = 'none';
             
             if (type === 'image') {
                 attachmentInput.style.display = 'block';
-                attachmentInput.placeholder = 'Image URL';
+                imageFiles.style.display = 'block';
+                // uploadBtn.style.display = 'block'; // Remove manual upload button
+                previewContainer.style.display = 'block';
+                attachmentInput.placeholder = 'Image URL (or select files below - will upload when you send)';
             } else if (type === 'offer') {
                 offerInput.style.display = 'block';
             }
         });
+
+        // File input change handler for preview
+        document.getElementById('imageFiles').addEventListener('change', function() {
+            const files = this.files;
+            showImagePreviews(files);
+        });
+
+        // Function to show image previews when files are selected
+        function showImagePreviews(files) {
+            const previewContainer = document.getElementById('imagePreviewContainer');
+            const previewGrid = document.createElement('div');
+            previewGrid.className = 'image-preview-grid';
+            previewGrid.id = 'imagePreviewGrid';
+            
+            // Clear existing previews
+            previewContainer.innerHTML = '';
+            previewContainer.appendChild(previewGrid);
+            
+            // Show preview for each selected file
+            Array.from(files).forEach((file, index) => {
+                if (file.type.startsWith('image/')) {
+                    const previewItem = createImagePreviewItem(file, index);
+                    previewGrid.appendChild(previewItem);
+                }
+            });
+        }
+
+        // Function to create image preview item
+        function createImagePreviewItem(file, index) {
+            const previewItem = document.createElement('div');
+            previewItem.className = 'image-preview-item';
+            previewItem.dataset.index = index;
+            
+            const img = document.createElement('img');
+            img.className = 'image-preview-thumb';
+            
+            const overlay = document.createElement('div');
+            overlay.className = 'image-preview-overlay';
+            overlay.innerHTML = '<div>Will upload when sent</div>';
+            
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'image-preview-remove';
+            removeBtn.innerHTML = '×';
+            removeBtn.style.display = 'flex'; // Always show remove button for selected files
+            removeBtn.onclick = () => removeImagePreview(index);
+            
+            // Create FileReader to show preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+            
+            previewItem.appendChild(img);
+            previewItem.appendChild(overlay);
+            previewItem.appendChild(removeBtn);
+            
+            return previewItem;
+        }
+
+        // Function to remove image preview
+        function removeImagePreview(index) {
+            const previewItem = document.querySelector(`[data-index="${index}"]`);
+            const url = previewItem ? previewItem.dataset.url : null;
+            
+            // Remove from file input
+            const fileInput = document.getElementById('imageFiles');
+            const dt = new DataTransfer();
+            
+            // Copy all files except the one to remove
+            Array.from(fileInput.files).forEach((file, i) => {
+                if (i !== index) {
+                    dt.items.add(file);
+                }
+            });
+            
+            fileInput.files = dt.files;
+            
+            // Remove from attachment URLs if uploaded
+            if (url) {
+                const attachmentInput = document.getElementById('attachmentUrl');
+                const urls = attachmentInput.value.split(',').map(u => u.trim()).filter(u => u);
+                const updatedUrls = urls.filter(u => u !== url);
+                attachmentInput.value = updatedUrls.join(', ');
+            }
+            
+            showImagePreviews(fileInput.files);
+        }
+
+
+        // Function to update image preview status
+        function updateImagePreviewStatus(index, status, url = null) {
+            const previewItem = document.querySelector(`[data-index="${index}"]`);
+            if (!previewItem) return;
+            
+            // Remove all status classes
+            previewItem.classList.remove('uploading', 'uploaded', 'error');
+            previewItem.classList.add(status);
+            
+            const overlay = previewItem.querySelector('.image-preview-overlay');
+            const removeBtn = previewItem.querySelector('.image-preview-remove');
+            
+            switch (status) {
+                case 'uploading':
+                    overlay.innerHTML = '<div class="image-preview-spinner"></div>';
+                    removeBtn.style.display = 'none';
+                    break;
+                case 'uploaded':
+                    overlay.style.display = 'none';
+                    removeBtn.style.display = 'flex';
+                    if (url) {
+                        previewItem.dataset.url = url;
+                    }
+                    break;
+                case 'error':
+                    overlay.innerHTML = '<div>Error</div>';
+                    removeBtn.style.display = 'none';
+                    break;
+                default:
+                    overlay.innerHTML = '<div>Will upload when sent</div>';
+                    removeBtn.style.display = 'flex';
+            }
+        }
+
+        // New function: Upload files and send messages in one go
+        async function sendMessageWithFileUpload(content, files) {
+            if (files.length > 5) {
+                showNotification('Maximum 5 images allowed', 'error');
+                return;
+            }
+
+            // Disable send button during upload
+            const sendBtn = document.getElementById('sendBtn');
+            const originalText = sendBtn.innerHTML;
+            sendBtn.disabled = true;
+            sendBtn.innerHTML = '⏳';
+
+            try {
+                const uploadedUrls = [];
+                let successCount = 0;
+                let failCount = 0;
+                
+                showNotification(`Uploading ${files.length} images...`, 'info');
+                
+                // Upload all files first
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    
+                    // Update preview to show uploading status
+                    updateImagePreviewStatus(i, 'uploading');
+                    
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    formData.append('folder', 'chat-images');
+                    formData.append('public', 'true'); // Make chat images public for easier access
+
+                    try {
+                        const response = await fetch('http://localhost:8080/v1/files/upload', {
+                            method: 'POST',
+                            headers: {
+                                'Authorization': 'Bearer ' + currentToken
+                            },
+                            body: formData
+                        });
+
+                        const data = await response.json();
+                        if (data.success && data.data.url) {
+                            uploadedUrls.push(data.data.url);
+                            // Store file metadata for secure access
+                            if (!window.uploadedFileMetadata) {
+                                window.uploadedFileMetadata = [];
+                            }
+                            window.uploadedFileMetadata.push({
+                                url: data.data.url,
+                                id: data.data.id,
+                                filename: data.data.filename
+                            });
+                            updateImagePreviewStatus(i, 'uploaded', data.data.url);
+                            successCount++;
+                            showNotification(`Uploaded ${successCount}/${files.length}: ${file.name}`, 'success');
+                        } else {
+                            throw new Error(`Failed to upload ${file.name}: ${data.message || 'Unknown error'}`);
+                        }
+                    } catch (fileError) {
+                        updateImagePreviewStatus(i, 'error');
+                        failCount++;
+                        showNotification(`Failed to upload ${file.name}: ${fileError.message}`, 'error');
+                    }
+                }
+
+                // If no uploads succeeded, stop here
+                if (uploadedUrls.length === 0) {
+                    showNotification('No images were uploaded successfully', 'error');
+                    return;
+                }
+
+                // Now send single message with all uploaded images
+                showNotification(`Sending message with ${uploadedUrls.length} images...`, 'info');
+                
+                const messageData = {
+                    content: content || 'Images', // Use user text or default
+                    type: 'image',
+                    attachment_urls: uploadedUrls, // Send all URLs in one message
+                    metadata: {
+                        file_metadata: window.uploadedFileMetadata || [] // Include file IDs for secure access
+                    }
+                };
+                
+                try {
+                    const response = await fetch(`http://localhost:8080/v1/chats/${activeChatId}/messages`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + currentToken
+                        },
+                        body: JSON.stringify(messageData)
+                    });
+                    
+                    const responseData = await response.json();
+                    if (responseData.success) {
+                        addMessageToUI(responseData.data, true);
+                        logMessage('CHAT', `Message with ${uploadedUrls.length} images sent`, 'success');
+                        showNotification(`Successfully sent message with ${uploadedUrls.length} images`, 'success');
+                    } else {
+                        logMessage('CHAT', `Failed to send message: ${responseData.message}`, 'error');
+                        showNotification(`Failed to send message: ${responseData.message}`, 'error');
+                    }
+                } catch (error) {
+                    logMessage('CHAT', `Error sending message: ${error.message}`, 'error');
+                    showNotification(`Error sending message: ${error.message}`, 'error');
+                }
+
+                // Clear inputs and previews after sending
+                document.getElementById('messageInput').value = '';
+                document.getElementById('attachmentUrl').value = '';
+                document.getElementById('imageFiles').value = '';
+                document.getElementById('imagePreviewContainer').innerHTML = '';
+                
+                // Clear file metadata
+                window.uploadedFileMetadata = [];
+                
+                // Ensure chat scrolls to bottom
+                const container = document.getElementById('chatMessages');
+                setTimeout(() => {
+                    container.scrollTop = container.scrollHeight;
+                }, 100);
+                
+                // Stop typing indicator
+                sendWSMessage({ type: "typing_stop", chat_id: activeChatId });
+
+            } catch (error) {
+                showNotification(`Upload/send failed: ${error.message}`, 'error');
+            } finally {
+                // Re-enable send button
+                sendBtn.disabled = false;
+                sendBtn.innerHTML = originalText;
+            }
+        }
+
+        // Security Functions - Convert storage URLs to secure proxy endpoints
+        function getSecureImageUrl(storageUrl) {
+            // Extract file ID from storage URL or file metadata
+            const fileId = extractFileIdFromUrl(storageUrl);
+            if (fileId) {
+                // Use secure proxy endpoint that requires authentication
+                return `http://localhost:8080/v1/files/${fileId}/view`;
+            }
+            
+            // If we can't get file ID, try to extract from URL pattern and lookup
+            // This is a fallback - in production all files should have IDs
+            const objectName = extractObjectNameFromUrl(storageUrl);
+            if (objectName) {
+                // Create a proxy URL that will lookup file by object name
+                return `http://localhost:8080/v1/files/proxy?object=${encodeURIComponent(objectName)}`;
+            }
+            
+            // Last resort: return direct URL (not secure)
+            console.warn('Using direct storage URL - not secure:', storageUrl);
+            return storageUrl;
+        }
+
+        function getSecureViewUrl(storageUrl) {
+            // Same as getSecureImageUrl but for full view/download
+            return getSecureImageUrl(storageUrl);
+        }
+
+        function extractFileIdFromUrl(url) {
+            // Try to extract file ID from various URL patterns
+            if (!url) return null;
+            
+            // Pattern 1: From stored file metadata in current message context
+            if (window.currentMessageMetadata && window.currentMessageMetadata.file_metadata) {
+                const fileData = window.currentMessageMetadata.file_metadata.find(f => f.url === url);
+                if (fileData && fileData.id) {
+                    return fileData.id;
+                }
+            }
+            
+            // Pattern 2: From global uploaded file metadata (for just uploaded files)
+            if (window.uploadedFileMetadata) {
+                const fileData = window.uploadedFileMetadata.find(f => f.url === url);
+                if (fileData && fileData.id) {
+                    return fileData.id;
+                }
+            }
+            
+            // Pattern 3: Try to extract from object name in URL
+            // For GCS URLs like: https://storage.googleapis.com/bucket/path/filename
+            try {
+                const urlObj = new URL(url);
+                const pathParts = urlObj.pathname.split('/');
+                const objectName = pathParts.slice(2).join('/'); // Remove bucket part
+                
+                // Try to find by object name (this would require backend lookup)
+                // For now, return null to use direct URL
+                return null;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function extractObjectNameFromUrl(url) {
+            // Extract object name from Google Cloud Storage URL
+            // Format: https://storage.googleapis.com/bucket-name/path/to/file.jpg
+            try {
+                const urlObj = new URL(url);
+                if (urlObj.hostname === 'storage.googleapis.com') {
+                    const pathParts = urlObj.pathname.split('/');
+                    if (pathParts.length >= 3) {
+                        // Skip empty first part and bucket name, join the rest
+                        return pathParts.slice(2).join('/');
+                    }
+                }
+                return null;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        async function loadSecureImage(imageId, storageUrl) {
+            const imgElement = document.getElementById(imageId);
+            if (!imgElement) return;
+            
+            try {
+                // Get signed URL from backend
+                const signedUrl = await getSignedURL(storageUrl);
+                if (signedUrl && signedUrl !== storageUrl) {
+                    imgElement.src = signedUrl;
+                    console.log('Image loaded with signed URL');
+                    return;
+                }
+                
+                // Fallback to direct URL if signed URL fails
+                console.warn('Using fallback direct URL for image:', storageUrl);
+                imgElement.src = storageUrl;
+                
+            } catch (error) {
+                console.error('Error loading secure image:', error);
+                // Fallback to direct URL
+                imgElement.src = storageUrl;
+            }
+        }
+
+        // Cache for signed URLs to avoid repeated requests
+        const signedURLCache = new Map();
+
+        async function getSignedURL(storageUrl) {
+            // Check cache first
+            if (signedURLCache.has(storageUrl)) {
+                return signedURLCache.get(storageUrl);
+            }
+
+            if (!currentToken) {
+                return storageUrl; // Fallback
+            }
+
+            try {
+                const response = await fetch('http://localhost:8080/v1/files/signed-urls', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + currentToken
+                    },
+                    body: JSON.stringify({
+                        urls: [storageUrl]
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.data.signed_urls) {
+                        const signedUrl = data.data.signed_urls[storageUrl];
+                        if (signedUrl) {
+                            // Cache the signed URL for 5 minutes
+                            signedURLCache.set(storageUrl, signedUrl);
+                            setTimeout(() => signedURLCache.delete(storageUrl), 5 * 60 * 1000);
+                            return signedUrl;
+                        }
+                    }
+                }
+                
+                return storageUrl; // Fallback
+            } catch (error) {
+                console.error('Error getting signed URL:', error);
+                return storageUrl; // Fallback
+            }
+        }
+
+        async function openSecureImage(secureUrl) {
+            try {
+                // Get signed URL for opening in new tab
+                const signedUrl = await getSignedURL(secureUrl);
+                window.open(signedUrl, '_blank');
+            } catch (error) {
+                console.error('Error opening secure image:', error);
+                // Fallback to direct URL
+                window.open(secureUrl, '_blank');
+            }
+        }
+
+        async function sendImageMessage(imageUrl) {
+            if (!activeChatId || !currentToken) return;
+
+            try {
+                const response = await fetch(`http://localhost:8080/v1/chats/${activeChatId}/messages`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + currentToken
+                    },
+                    body: JSON.stringify({
+                        content: 'Image',
+                        type: 'image',
+                        attachment_url: imageUrl
+                    })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    // Message will be received via WebSocket
+                    logMessage('CHAT', 'Image message sent', 'success');
+                } else {
+                    throw new Error(data.error?.message || 'Failed to send image');
+                }
+            } catch (error) {
+                logMessage('CHAT', `Image send failed: ${error.message}`, 'error');
+            }
+        }
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
