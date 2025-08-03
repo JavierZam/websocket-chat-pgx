@@ -109,6 +109,198 @@
             overflow-y: auto;
         }
 
+        .user-profile-card {
+            background: var(--light-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .user-profile-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .user-info h4 {
+            margin: 0;
+            font-size: 14px;
+            color: var(--text-color);
+        }
+
+        .user-info p {
+            margin: 2px 0 0 0;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .chat-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+        }
+
+        .chat-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border: 1px solid var(--border-color);
+        }
+
+        .chat-item:hover {
+            background: var(--light-bg);
+        }
+
+        .chat-item.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .chat-item-info {
+            flex: 1;
+        }
+
+        .chat-item-title {
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .chat-item-preview {
+            font-size: 11px;
+            opacity: 0.7;
+        }
+
+        .chat-item-meta {
+            font-size: 10px;
+            opacity: 0.6;
+        }
+
+        .unread-badge {
+            background: var(--danger-color);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        /* Product Display in Chat */
+        .chat-product-section {
+            border-top: 1px solid var(--border-color);
+            background: var(--light-bg);
+            padding: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .product-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            gap: 12px;
+            transition: box-shadow 0.2s;
+        }
+
+        .product-card:hover {
+            box-shadow: var(--shadow);
+        }
+
+        .product-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 6px;
+            object-fit: cover;
+            background: var(--light-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .product-info {
+            flex: 1;
+        }
+
+        .product-title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 4px;
+            color: var(--text-color);
+        }
+
+        .product-price {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 6px;
+        }
+
+        .product-type {
+            background: var(--info-color);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            text-transform: uppercase;
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        .product-delivery {
+            background: var(--success-color);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            text-transform: uppercase;
+            display: inline-block;
+        }
+
+        .product-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            min-width: 80px;
+        }
+
+        .buy-instant {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .buy-middleman {
+            background: var(--warning-color);
+            color: white;
+        }
+
         .form-group {
             margin-bottom: 15px;
         }
@@ -171,6 +363,15 @@
         .btn-danger {
             background: var(--danger-color);
             color: white;
+        }
+
+        .btn-secondary {
+            background: var(--text-muted);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: var(--dark-bg);
         }
 
         .btn-sm {
@@ -554,6 +755,15 @@
             margin-bottom: 5px;
         }
 
+        .user-item span[onclick] {
+            transition: color 0.2s;
+        }
+
+        .user-item span[onclick]:hover {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
         .user-online {
             background: rgba(40, 167, 69, 0.1);
             border-left: 3px solid var(--success-color);
@@ -780,6 +990,7 @@
 
                 <hr style="margin: 20px 0; border: none; border-top: 1px solid var(--border-color);">
 
+                <!-- User Profile Search -->
                 <div class="form-group">
                     <label class="form-label">Direct Chat Setup</label>
                     <input type="text" class="form-input" id="recipientId" placeholder="Recipient User ID">
@@ -900,6 +1111,14 @@
 
             <div class="typing-indicator" id="typingIndicator" style="display: none;"></div>
 
+            <!-- Products Section -->
+            <div class="chat-product-section" id="chatProductSection" style="display: none;">
+                <h4 style="margin-bottom: 10px; color: var(--primary-color); font-size: 14px;">🛍️ Available Products</h4>
+                <div id="chatProductsList">
+                    <!-- Products will be loaded here -->
+                </div>
+            </div>
+
             <div class="chat-input-area">
                 <div class="chat-input-toolbar">
                     <select id="messageType" class="form-input" style="width: 100px;">
@@ -973,6 +1192,12 @@
         let activeChatId = '';
         let typingTimeout = null;
         let onlineUsers = new Map();
+        let myChats = [];
+        let searchedUser = null;
+        let rateLimitedUntil = null;
+        let rateLimitTimer = null;
+        let currentChatProducts = [];
+        let otherUserInChat = null;
 
         // Authentication
         async function login() {
@@ -1201,7 +1426,7 @@
                         break;
                     
                     case 'rate_limit_exceeded':
-                        showNotification('Rate limit exceeded! Slow down.', 'error');
+                        handleRateLimit(data);
                         break;
                     
                     case 'offer_update':
@@ -1228,11 +1453,19 @@
                 return;
             }
 
-            const recipientId = document.getElementById('recipientId').value;
-            const productId = document.getElementById('productId').value;
+            const recipientId = document.getElementById('recipientId').value.trim();
+            const productId = document.getElementById('productId').value.trim();
 
             if (!recipientId) {
                 showNotification('Please enter recipient ID', 'error');
+                return;
+            }
+
+            // Prevent self-chat in manual setup too
+            if (recipientId === currentUserId) {
+                showNotification('You cannot create a chat with yourself!', 'error');
+                logMessage('CHAT', 'Manual chat creation with self blocked', 'error');
+                document.getElementById('recipientId').value = ''; // Clear the input
                 return;
             }
 
@@ -1255,6 +1488,7 @@
                 if (data.success && data.data.id) {
                     document.getElementById('activeChatId').value = data.data.id;
                     setActiveChat();
+                    loadMyChats(); // Refresh chat list
                     showNotification('Chat created successfully!', 'success');
                     logMessage('CHAT', `Created chat ${data.data.id}`, 'success');
                 } else {
@@ -1866,6 +2100,12 @@
         async function sendMessage() {
             if (!activeChatId || !currentToken) {
                 showNotification('No active chat selected', 'error');
+                return;
+            }
+
+            // Check rate limit
+            if (isRateLimited()) {
+                showNotification('You are currently rate limited. Please wait.', 'error');
                 return;
             }
 
@@ -2769,6 +3009,72 @@
             return div.innerHTML;
         }
 
+        // Rate Limit Handler
+        function handleRateLimit(data) {
+            const waitTime = data.wait_time || 60; // Default to 60 seconds
+            const message = data.message || 'Rate limit exceeded. Please slow down.';
+            
+            rateLimitedUntil = Date.now() + (waitTime * 1000);
+            
+            // Disable send button and show countdown
+            const sendBtn = document.getElementById('sendBtn');
+            const messageInput = document.getElementById('messageInput');
+            
+            sendBtn.disabled = true;
+            messageInput.disabled = true;
+            messageInput.placeholder = `Rate limited - wait ${Math.ceil(waitTime)}s`;
+            
+            showNotification(message, 'error');
+            logMessage('RATE_LIMIT', `Rate limited for ${waitTime} seconds`, 'error');
+            
+            // Clear any existing timer
+            if (rateLimitTimer) {
+                clearInterval(rateLimitTimer);
+            }
+            
+            // Start countdown timer
+            rateLimitTimer = setInterval(() => {
+                const remaining = Math.max(0, rateLimitedUntil - Date.now());
+                
+                if (remaining <= 0) {
+                    // Rate limit expired
+                    clearInterval(rateLimitTimer);
+                    rateLimitTimer = null;
+                    rateLimitedUntil = null;
+                    
+                    sendBtn.disabled = false;
+                    messageInput.disabled = false;
+                    messageInput.placeholder = 'Type a message...';
+                    
+                    showNotification('You can now send messages again', 'success');
+                    logMessage('RATE_LIMIT', 'Rate limit expired', 'success');
+                } else {
+                    // Update countdown
+                    const seconds = Math.ceil(remaining / 1000);
+                    messageInput.placeholder = `Rate limited - wait ${seconds}s`;
+                    sendBtn.textContent = `${seconds}s`;
+                }
+            }, 1000);
+        }
+
+        // Check if currently rate limited
+        function isRateLimited() {
+            if (rateLimitedUntil && Date.now() < rateLimitedUntil) {
+                return true;
+            }
+            
+            // Clean up if expired
+            if (rateLimitedUntil && Date.now() >= rateLimitedUntil) {
+                rateLimitedUntil = null;
+                if (rateLimitTimer) {
+                    clearInterval(rateLimitTimer);
+                    rateLimitTimer = null;
+                }
+            }
+            
+            return false;
+        }
+
         // Event Handlers
         function handleNewMessage(data) {
             if (data.chat_id === activeChatId) {
@@ -2784,6 +3090,13 @@
                         chat_id: data.chat_id, 
                         data: { message_id: data.message.id } 
                     });
+                }
+                
+                // Refresh chat list when new message arrives
+                if (myChats.length > 0) {
+                    setTimeout(() => {
+                        loadMyChats();
+                    }, 500);
                 }
             }
         }
@@ -2859,7 +3172,9 @@
                 userDiv.className = `user-item ${user.isOnline ? 'user-online' : 'user-offline'}`;
                 userDiv.innerHTML = `
                     <div class="user-status-dot ${user.isOnline ? 'user-status-online' : 'user-status-offline'}"></div>
-                    <span>${user.username} ${user.isOnline ? '(Online)' : '(Offline)'}</span>
+                    <span onclick="copyUserId('${userId}')" style="cursor: pointer; flex: 1;" title="Click to copy ID">
+                        ${user.username} ${user.isOnline ? '(Online)' : '(Offline)'}
+                    </span>
                 `;
                 container.appendChild(userDiv);
             });
@@ -2882,12 +3197,18 @@
                 return;
             }
             
-            logMessage('TEST', 'Starting rate limit test...', 'info');
-            for (let i = 0; i < 35; i++) {
+            logMessage('TEST', 'Starting rate limit test - sending 15 messages rapidly...', 'info');
+            showNotification('Sending 15 messages rapidly to test rate limiter', 'info');
+            
+            for (let i = 0; i < 15; i++) {
                 setTimeout(() => {
-                    document.getElementById('messageInput').value = `Rate test ${i + 1}`;
-                    sendMessage();
-                }, i * 100);
+                    if (!isRateLimited()) {
+                        document.getElementById('messageInput').value = `Rate test message ${i + 1} - testing spam protection`;
+                        sendMessage();
+                    } else {
+                        logMessage('TEST', `Message ${i + 1} blocked by rate limiter`, 'info');
+                    }
+                }, i * 500); // Send every 500ms to trigger rate limit
             }
         }
 
@@ -3472,6 +3793,18 @@
         document.addEventListener('DOMContentLoaded', function() {
             logMessage('SYSTEM', 'Modern chat testing interface loaded', 'success');
             showNotification('Welcome to PasargameX Chat Testing!', 'info');
+            
+            // Add real-time validation to user ID inputs
+            const recipientIdInput = document.getElementById('recipientId');
+            const searchUserIdInput = document.getElementById('searchUserId');
+            
+            recipientIdInput.addEventListener('input', function() {
+                validateUserIdInput(this);
+            });
+            
+            searchUserIdInput.addEventListener('input', function() {
+                validateUserIdInput(this);
+            });
         });
     </script>
 </body>
