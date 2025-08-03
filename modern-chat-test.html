@@ -1858,7 +1858,7 @@
                     data.data.products.forEach(product => {
                         const option = document.createElement('option');
                         option.value = product.id;
-                        option.textContent = `${product.title} - $${product.price}`;
+                        option.textContent = `${product.title} - Rp ${product.price.toLocaleString('id-ID')}`;
                         productSelect.appendChild(option);
                     });
                     
@@ -2061,7 +2061,7 @@
                         </div>
                         <div style="font-size: 10px; color: #28a745;">
                             ${isGroupChat ? `${chat.participants.length} participants` : 'Direct chat'}${roleInfo}
-                            ${chat.product?.price ? ` • $${chat.product.price.toLocaleString()}` : ''}
+                            ${chat.product?.price ? ` • Rp ${chat.product.price.toLocaleString('id-ID')}` : ''}
                         </div>
                     </div>
                 `;
@@ -2215,10 +2215,30 @@
                     messageData.attachment_url = urls[0] || attachmentUrl;
                 }
             } else if (messageType === 'offer' && offerPrice) {
+                const priceValue = parseFloat(offerPrice);
+                
+                // Validate offer price (minimum 1000 IDR, maximum 1 billion IDR)
+                if (priceValue < 1000) {
+                    showNotification('Offer price must be at least Rp 1,000', 'error');
+                    return;
+                }
+                if (priceValue > 1000000000) {
+                    showNotification('Offer price cannot exceed Rp 1,000,000,000', 'error');
+                    return;
+                }
+                
                 messageData.metadata = {
-                    price: parseFloat(offerPrice),
+                    price: priceValue,
                     status: "pending"
                 };
+                
+                // Add product_id if available from current chat context
+                if (window.currentChatProduct && window.currentChatProduct.id) {
+                    messageData.metadata.product_id = window.currentChatProduct.id;
+                    logMessage('OFFER', `Including product_id: ${window.currentChatProduct.id}`, 'info');
+                } else {
+                    logMessage('OFFER', 'No product context available for offer', 'warning');
+                }
             }
 
             try {
@@ -2336,13 +2356,8 @@
                         const imageStyle = imageCount === 1 ? 
                             'max-width: 250px; width: 100%;' : 
                             'width: 100%; aspect-ratio: 1; object-fit: cover; max-width: 150px;';
-                        // Use secure proxy endpoint instead of direct storage URL
-                        const secureViewUrl = getSecureViewUrl(url);
-                        const imageId = `img_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-                        imagesHtml += `<img id="${imageId}" alt="Image" style="${imageStyle} border-radius: 8px; cursor: pointer;" referrerpolicy="no-referrer" onclick="openSecureImage('${secureViewUrl}')" data-src="${url}">`;
-                        
-                        // Load image securely using fetch with auth headers
-                        setTimeout(() => loadSecureImage(imageId, url), 100);
+                        // Use direct storage URL (simple and fast for public chat images)
+                        imagesHtml += `<img src="${url}" alt="Image" style="${imageStyle} border-radius: 8px; cursor: pointer;" referrerpolicy="no-referrer" onclick="openSecureImage('${url}')">`;
                     });
                     imagesHtml += '</div>';
                     
@@ -2356,19 +2371,15 @@
                     } else {
                         contentHtml = '';
                     }
-                    const secureViewUrl = getSecureViewUrl(message.attachment_url);
-                    const imageId = `img_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-                    contentHtml += `<img id="${imageId}" alt="Image" style="max-width: 250px; border-radius: 8px; cursor: pointer;" referrerpolicy="no-referrer" onclick="openSecureImage('${secureViewUrl}')" data-src="${message.attachment_url}">`;
-                    
-                    // Load image securely using fetch with auth headers
-                    setTimeout(() => loadSecureImage(imageId, message.attachment_url), 100);
+                    // Use direct storage URL (simple and fast for public chat images)
+                    contentHtml += `<img src="${message.attachment_url}" alt="Image" style="max-width: 250px; border-radius: 8px; cursor: pointer;" referrerpolicy="no-referrer" onclick="openSecureImage('${message.attachment_url}')">`;
                 }
             } else if (message.type === 'offer' && message.metadata) {
                 const price = message.metadata.price || 0;
                 const status = message.metadata.status || 'pending';
                 
                 contentHtml = `
-                    <div class="offer-price">$${price.toFixed(2)}</div>
+                    <div class="offer-price">Rp ${price.toLocaleString('id-ID')}</div>
                     <div>${escapeHtml(message.content)}</div>
                     <div class="offer-status offer-status-${status}">${status}</div>
                 `;
@@ -2413,7 +2424,7 @@
                             ">🎮</div>
                             <div style="flex: 1;">
                                 <div style="font-weight: bold; color: #495057; font-size: 16px;">${escapeHtml(productEmbed.product_title)}</div>
-                                <div style="color: #28a745; font-weight: bold; font-size: 18px;">$${productEmbed.product_price.toLocaleString()}</div>
+                                <div style="color: #28a745; font-weight: bold; font-size: 18px;">Rp ${productEmbed.product_price.toLocaleString('id-ID')}</div>
                                 <div style="font-size: 12px; color: #6c757d;">Delivery: ${escapeHtml(productEmbed.delivery_method)}</div>
                             </div>
                         </div>
@@ -2708,7 +2719,7 @@
                 <div id="paymentModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center;">
                     <div style="background: white; padding: 20px; border-radius: 8px; max-width: 400px; width: 90%;">
                         <h3>Purchase: ${product.title}</h3>
-                        <p>Price: $${product.price.toLocaleString()}</p>
+                        <p>Price: Rp ${product.price.toLocaleString('id-ID')}</p>
                         ${deliveryNote ? `<p><strong>Delivery:</strong> ${deliveryNote}</p>` : ''}
                         
                         <div style="margin: 20px 0;">
@@ -2910,7 +2921,7 @@
             let productsHtml = products.map(product => `
                 <div style="border: 1px solid #ddd; padding: 10px; margin: 5px 0; border-radius: 4px;">
                     <strong>${product.title}</strong><br>
-                    Price: $${product.price.toLocaleString()}<br>
+                    Price: Rp ${product.price.toLocaleString('id-ID')}<br>
                     Delivery: ${product.delivery_method || 'manual'}<br>
                     <button class="btn btn-sm btn-success" onclick="purchaseSpecificProduct('${product.id}')" style="margin-top: 5px;">Purchase</button>
                 </div>
@@ -3358,13 +3369,48 @@
             previewContainer.innerHTML = '';
             previewContainer.appendChild(previewGrid);
             
-            // Show preview for each selected file
+            // Show preview for each selected file with validation
             Array.from(files).forEach((file, index) => {
-                if (file.type.startsWith('image/')) {
+                const validation = validateImageFile(file);
+                if (validation.valid) {
                     const previewItem = createImagePreviewItem(file, index);
                     previewGrid.appendChild(previewItem);
+                } else {
+                    // Show error notification for invalid files
+                    showNotification(`${file.name}: ${validation.error}`, 'error');
                 }
             });
+        }
+
+        // Client-side file validation
+        function validateImageFile(file) {
+            const maxSize = 5 * 1024 * 1024; // 5MB
+            const allowedTypes = [
+                'image/jpeg', 
+                'image/jpg', 
+                'image/png', 
+                'image/gif', 
+                'image/webp', 
+                'image/avif'
+                // Note: SVG excluded for security (XSS risks)
+            ];
+
+            // Check file size
+            if (file.size > maxSize) {
+                return { valid: false, error: `File too large (max 5MB)` };
+            }
+
+            // Check file type
+            if (!allowedTypes.includes(file.type)) {
+                return { valid: false, error: `Invalid file type. Only safe image formats allowed.` };
+            }
+
+            // Check filename for security
+            if (file.name.includes('..') || file.name.includes('/') || file.name.includes('\\')) {
+                return { valid: false, error: `Invalid filename` };
+            }
+
+            return { valid: true };
         }
 
         // Function to create image preview item
@@ -3599,165 +3645,19 @@
             }
         }
 
-        // Security Functions - Convert storage URLs to secure proxy endpoints
-        function getSecureImageUrl(storageUrl) {
-            // Extract file ID from storage URL or file metadata
-            const fileId = extractFileIdFromUrl(storageUrl);
-            if (fileId) {
-                // Use secure proxy endpoint that requires authentication
-                return `http://localhost:8080/v1/files/${fileId}/view`;
-            }
-            
-            // If we can't get file ID, try to extract from URL pattern and lookup
-            // This is a fallback - in production all files should have IDs
-            const objectName = extractObjectNameFromUrl(storageUrl);
-            if (objectName) {
-                // Create a proxy URL that will lookup file by object name
-                return `http://localhost:8080/v1/files/proxy?object=${encodeURIComponent(objectName)}`;
-            }
-            
-            // Last resort: return direct URL (not secure)
-            console.warn('Using direct storage URL - not secure:', storageUrl);
-            return storageUrl;
-        }
+        // Simple and secure approach: Direct storage URLs for public chat images
 
-        function getSecureViewUrl(storageUrl) {
-            // Same as getSecureImageUrl but for full view/download
-            return getSecureImageUrl(storageUrl);
-        }
-
-        function extractFileIdFromUrl(url) {
-            // Try to extract file ID from various URL patterns
-            if (!url) return null;
-            
-            // Pattern 1: From stored file metadata in current message context
-            if (window.currentMessageMetadata && window.currentMessageMetadata.file_metadata) {
-                const fileData = window.currentMessageMetadata.file_metadata.find(f => f.url === url);
-                if (fileData && fileData.id) {
-                    return fileData.id;
-                }
-            }
-            
-            // Pattern 2: From global uploaded file metadata (for just uploaded files)
-            if (window.uploadedFileMetadata) {
-                const fileData = window.uploadedFileMetadata.find(f => f.url === url);
-                if (fileData && fileData.id) {
-                    return fileData.id;
-                }
-            }
-            
-            // Pattern 3: Try to extract from object name in URL
-            // For GCS URLs like: https://storage.googleapis.com/bucket/path/filename
-            try {
-                const urlObj = new URL(url);
-                const pathParts = urlObj.pathname.split('/');
-                const objectName = pathParts.slice(2).join('/'); // Remove bucket part
-                
-                // Try to find by object name (this would require backend lookup)
-                // For now, return null to use direct URL
-                return null;
-            } catch (e) {
-                return null;
-            }
-        }
-
-        function extractObjectNameFromUrl(url) {
-            // Extract object name from Google Cloud Storage URL
-            // Format: https://storage.googleapis.com/bucket-name/path/to/file.jpg
-            try {
-                const urlObj = new URL(url);
-                if (urlObj.hostname === 'storage.googleapis.com') {
-                    const pathParts = urlObj.pathname.split('/');
-                    if (pathParts.length >= 3) {
-                        // Skip empty first part and bucket name, join the rest
-                        return pathParts.slice(2).join('/');
-                    }
-                }
-                return null;
-            } catch (e) {
-                return null;
-            }
-        }
-
-        async function loadSecureImage(imageId, storageUrl) {
+        function loadSecureImage(imageId, storageUrl) {
             const imgElement = document.getElementById(imageId);
             if (!imgElement) return;
             
-            try {
-                // Get signed URL from backend
-                const signedUrl = await getSignedURL(storageUrl);
-                if (signedUrl && signedUrl !== storageUrl) {
-                    imgElement.src = signedUrl;
-                    console.log('Image loaded with signed URL');
-                    return;
-                }
-                
-                // Fallback to direct URL if signed URL fails
-                console.warn('Using fallback direct URL for image:', storageUrl);
-                imgElement.src = storageUrl;
-                
-            } catch (error) {
-                console.error('Error loading secure image:', error);
-                // Fallback to direct URL
-                imgElement.src = storageUrl;
-            }
+            // For public chat images, use direct storage URL (simple and fast) 
+            imgElement.src = storageUrl;
         }
 
-        // Cache for signed URLs to avoid repeated requests
-        const signedURLCache = new Map();
-
-        async function getSignedURL(storageUrl) {
-            // Check cache first
-            if (signedURLCache.has(storageUrl)) {
-                return signedURLCache.get(storageUrl);
-            }
-
-            if (!currentToken) {
-                return storageUrl; // Fallback
-            }
-
-            try {
-                const response = await fetch('http://localhost:8080/v1/files/signed-urls', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + currentToken
-                    },
-                    body: JSON.stringify({
-                        urls: [storageUrl]
-                    })
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.success && data.data.signed_urls) {
-                        const signedUrl = data.data.signed_urls[storageUrl];
-                        if (signedUrl) {
-                            // Cache the signed URL for 5 minutes
-                            signedURLCache.set(storageUrl, signedUrl);
-                            setTimeout(() => signedURLCache.delete(storageUrl), 5 * 60 * 1000);
-                            return signedUrl;
-                        }
-                    }
-                }
-                
-                return storageUrl; // Fallback
-            } catch (error) {
-                console.error('Error getting signed URL:', error);
-                return storageUrl; // Fallback
-            }
-        }
-
-        async function openSecureImage(secureUrl) {
-            try {
-                // Get signed URL for opening in new tab
-                const signedUrl = await getSignedURL(secureUrl);
-                window.open(signedUrl, '_blank');
-            } catch (error) {
-                console.error('Error opening secure image:', error);
-                // Fallback to direct URL
-                window.open(secureUrl, '_blank');
-            }
+        function openSecureImage(imageUrl) {
+            // Open image in new tab with security headers
+            window.open(imageUrl, '_blank');
         }
 
         async function sendImageMessage(imageUrl) {

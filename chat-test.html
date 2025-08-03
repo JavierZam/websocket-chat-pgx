@@ -1219,7 +1219,7 @@
                 const offerStatus = message.metadata.status || 'pending';
                 let statusClass = `offer-status-${offerStatus}`;
                 contentHtml = `
-                    <strong>Offer:</strong> $${offerPrice.toFixed(2)}<br>
+                    <strong>Offer:</strong> Rp ${offerPrice.toLocaleString('id-ID')}<br>
                     Status: <span class="${statusClass}">${offerStatus.toUpperCase()}</span>
                 `;
 
