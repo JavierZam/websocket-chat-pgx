@@ -2392,6 +2392,41 @@
                         </div>
                     `;
                 }
+            } else if (message.type === 'system' && message.metadata) {
+                // Handle special system messages
+                if (message.metadata.transaction_id && message.metadata.credentials) {
+                    // Instant delivery credentials
+                    const credentials = message.metadata.credentials;
+                    contentHtml = `
+                        <div style="background: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                            <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                                <span style="font-size: 24px; margin-right: 8px;">🎮</span>
+                                <strong>Account Credentials Delivered!</strong>
+                            </div>
+                            <div style="background: white; padding: 12px; border-radius: 6px; margin: 10px 0; font-family: monospace;">
+                                <div style="margin-bottom: 8px;"><strong>Username:</strong> ${escapeHtml(credentials.username || 'N/A')}</div>
+                                <div style="margin-bottom: 8px;"><strong>Password:</strong> ${escapeHtml(credentials.password || 'N/A')}</div>
+                                ${credentials.email ? `<div style="margin-bottom: 8px;"><strong>Email:</strong> ${escapeHtml(credentials.email)}</div>` : ''}
+                                ${credentials.notes ? `<div style="color: #6c757d; font-size: 12px;">${escapeHtml(credentials.notes)}</div>` : ''}
+                            </div>
+                            <div style="font-size: 12px; color: #155724;">
+                                Transaction ID: ${escapeHtml(message.metadata.transaction_id)}
+                            </div>
+                        </div>
+                    `;
+                } else if (message.metadata.payment_status) {
+                    // Payment status updates
+                    const status = message.metadata.payment_status;
+                    const statusColor = status === 'paid' ? '#155724' : status === 'failed' ? '#721c24' : '#856404';
+                    const statusBg = status === 'paid' ? '#d4edda' : status === 'failed' ? '#f8d7da' : '#fff3cd';
+                    const statusIcon = status === 'paid' ? '✅' : status === 'failed' ? '❌' : '⏳';
+                    
+                    contentHtml = `
+                        <div style="background: ${statusBg}; color: ${statusColor}; padding: 12px; border-radius: 6px; text-align: center;">
+                            ${statusIcon} ${escapeHtml(message.content)}
+                        </div>
+                    `;
+                }
             }
 
             // Handle product embed in message metadata
@@ -2553,7 +2588,8 @@
                 if (data.success && data.data) {
                     const chat = data.data;
                     
-                    // Store chat participants for purchase button functionality
+                    // Store chat data and participants for purchase button functionality  
+                    window.currentChatData = chat;
                     window.currentChatParticipants = chat.participants || [];
                     
                     // Show product context if chat has product
@@ -2665,6 +2701,19 @@
         }
 
         function showPurchaseButtons() {
+            // Don't show purchase buttons in middleman group chats
+            if (window.currentChatData && window.currentChatData.middleman_id) {
+                // This is a middleman group chat - transaction is already in progress
+                document.getElementById('purchaseButtons').style.display = 'none';
+                return;
+            }
+            
+            // Don't show purchase buttons if current user is the seller
+            if (window.currentChatProduct && window.currentChatProduct.seller_id === currentUserId) {
+                document.getElementById('purchaseButtons').style.display = 'none';
+                return;
+            }
+            
             document.getElementById('purchaseButtons').style.display = 'block';
         }
 
@@ -2715,19 +2764,67 @@
         }
 
         function showPaymentOptions(product, deliveryNote = '') {
+            const deliveryMethod = product.delivery_method || 'manual';
+            
+            let deliveryInfo = '';
+            let paymentButtons = '';
+            
+            if (deliveryMethod === 'instant') {
+                deliveryInfo = `
+                    <div style="background: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 12px; border-radius: 6px; margin: 15px 0;">
+                        <strong>🚀 INSTANT DELIVERY</strong><br>
+                        <small>Credentials will be automatically displayed after payment confirmation</small>
+                    </div>
+                `;
+                paymentButtons = `
+                    <button class="btn btn-success buy-instant" onclick="createInstantTransaction('${product.id}')" style="width: 100%; margin-bottom: 10px;">
+                        💳 Pay Now - Get Instant Credentials
+                    </button>
+                `;
+            } else if (deliveryMethod === 'middleman') {
+                deliveryInfo = `
+                    <div style="background: #fff3cd; border: 1px solid #ffeaa7; color: #856404; padding: 12px; border-radius: 6px; margin: 15px 0;">
+                        <strong>👥 MIDDLEMAN DELIVERY</strong><br>
+                        <small>Transaction handled by trusted middleman for security</small>
+                    </div>
+                `;
+                paymentButtons = `
+                    <button class="btn btn-warning buy-middleman" onclick="selectMiddlemanForPayment('${product.id}')" style="width: 100%; margin-bottom: 10px;">
+                        🛡️ Select Middleman
+                    </button>
+                `;
+            } else {
+                deliveryInfo = `
+                    <div style="background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 12px; border-radius: 6px; margin: 15px 0;">
+                        <strong>📋 MANUAL DELIVERY</strong><br>
+                        <small>Choose your preferred payment method</small>
+                    </div>
+                `;
+                paymentButtons = `
+                    <button class="btn btn-primary" onclick="createInstantTransaction('${product.id}')" style="margin-right: 10px;">
+                        💳 Payment Gateway
+                    </button>
+                    <button class="btn btn-warning" onclick="selectMiddlemanForPayment('${product.id}')">
+                        👥 Use Middleman
+                    </button>
+                `;
+            }
+
             const modal = `
                 <div id="paymentModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center;">
-                    <div style="background: white; padding: 20px; border-radius: 8px; max-width: 400px; width: 90%;">
-                        <h3>Purchase: ${product.title}</h3>
-                        <p>Price: Rp ${product.price.toLocaleString('id-ID')}</p>
-                        ${deliveryNote ? `<p><strong>Delivery:</strong> ${deliveryNote}</p>` : ''}
-                        
-                        <div style="margin: 20px 0;">
-                            <button class="btn btn-primary" onclick="directPayment('${product.id}')" style="margin-right: 10px;">Direct Payment</button>
-                            <button class="btn btn-warning" onclick="selectMiddlemanForPayment('${product.id}')">Use Middleman</button>
+                    <div style="background: white; padding: 20px; border-radius: 8px; max-width: 450px; width: 90%;">
+                        <h3>🛒 Purchase: ${product.title}</h3>
+                        <div style="background: #f8f9fa; padding: 12px; border-radius: 6px; margin: 10px 0;">
+                            <strong>💰 Price: Rp ${product.price.toLocaleString('id-ID')}</strong>
                         </div>
                         
-                        <button class="btn btn-secondary" onclick="closeModal('paymentModal')" style="width: 100%; margin-top: 10px;">Cancel</button>
+                        ${deliveryInfo}
+                        
+                        <div style="margin: 20px 0;">
+                            ${paymentButtons}
+                        </div>
+                        
+                        <button class="btn btn-secondary" onclick="closeModal('paymentModal')" style="width: 100%; margin-top: 10px;">❌ Cancel</button>
                     </div>
                 </div>
             `;
@@ -2738,6 +2835,12 @@
             // Auto-detect buyer/seller based on chat context
             if (!activeChatId || !window.currentChatParticipants) {
                 showNotification('Chat context not available', 'error');
+                return;
+            }
+            
+            // Don't allow middleman selection if already in a middleman group chat
+            if (window.currentChatData && window.currentChatData.middleman_id) {
+                showNotification('This is already a middleman transaction chat', 'info');
                 return;
             }
 
@@ -2759,14 +2862,8 @@
                 return;
             }
             
-            // Get buyer - prioritize non-admin participants
-            const otherParticipants = window.currentChatParticipants.filter(p => p !== currentUserId && p !== sellerId);
-            if (otherParticipants.length > 0) {
-                buyerId = otherParticipants[0]; // Take the first non-seller participant
-            } else {
-                // Current user becomes the buyer (we already checked they're not seller or admin)
-                buyerId = currentUserId;
-            }
+            // Current user becomes the buyer (since they're not seller or admin)
+            buyerId = currentUserId;
 
             if (!buyerId || !sellerId) {
                 showNotification('Cannot determine buyer/seller from chat context', 'error');
@@ -2958,16 +3055,115 @@
             }
         }
 
-        function directPayment(productId) {
-            closeModal('paymentModal');
-            showNotification('Direct payment initiated (placeholder)', 'info');
-            // TODO: Implement actual payment logic
+        async function createInstantTransaction(productId) {
+            try {
+                closeModal('paymentModal');
+                showNotification('Creating instant transaction...', 'info');
+
+                const response = await fetch('http://localhost:8080/v1/payments/transactions/instant', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + currentToken,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        product_id: productId,
+                        delivery_method: 'instant',
+                        payment_method: 'midtrans'
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    const transaction = data.data.transaction;
+                    
+                    // Show payment instructions modal
+                    const paymentModal = `
+                        <div id="instantPaymentModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center;">
+                            <div style="background: white; padding: 20px; border-radius: 8px; max-width: 500px; width: 90%; max-height: 80%; overflow-y: auto;">
+                                <h3>💳 Payment Instructions</h3>
+                                <div style="background: #e7f3ff; border: 1px solid #b8daff; padding: 12px; border-radius: 6px; margin: 15px 0;">
+                                    <strong>Transaction ID:</strong> ${transaction.id}<br>
+                                    <strong>Amount:</strong> Rp ${transaction.total_amount.toLocaleString('id-ID')}<br>
+                                    <strong>Status:</strong> <span style="color: #856404;">⏳ Pending Payment</span>
+                                </div>
+                                
+                                ${transaction.midtrans_redirect_url ? `
+                                    <div style="margin: 20px 0;">
+                                        <button class="btn btn-primary" onclick="window.open('${transaction.midtrans_redirect_url}', '_blank')" style="width: 100%; margin-bottom: 10px;">
+                                            🌐 Open Midtrans Payment Page
+                                        </button>
+                                    </div>
+                                ` : ''}
+                                
+                                <div style="background: #fff3cd; border: 1px solid #ffeaa7; color: #856404; padding: 12px; border-radius: 6px; margin: 15px 0;">
+                                    <strong>🚀 INSTANT DELIVERY:</strong><br>
+                                    <small>Once payment is confirmed, credentials will automatically appear in this chat</small>
+                                </div>
+                                
+                                <div style="margin: 20px 0;">
+                                    <button class="btn btn-info" onclick="checkPaymentStatus('${transaction.id}')" style="margin-right: 10px;">
+                                        🔄 Check Payment Status
+                                    </button>
+                                    <button class="btn btn-secondary" onclick="closeModal('instantPaymentModal')">
+                                        ❌ Close
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    document.body.insertAdjacentHTML('beforeend', paymentModal);
+                    showNotification('Instant transaction created! Please complete payment.', 'success');
+                    
+                } else {
+                    throw new Error(data.error?.message || 'Failed to create transaction');
+                }
+            } catch (error) {
+                showNotification(`Failed to create instant transaction: ${error.message}`, 'error');
+            }
+        }
+
+        async function checkPaymentStatus(transactionId) {
+            try {
+                const response = await fetch(`http://localhost:8080/v1/payments/transactions/${transactionId}/status`, {
+                    headers: { 'Authorization': 'Bearer ' + currentToken }
+                });
+
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    const status = data.data.payment_status;
+                    
+                    if (status === 'paid') {
+                        showNotification('✅ Payment confirmed! Credentials will appear shortly.', 'success');
+                        closeModal('instantPaymentModal');
+                        loadMessages(); // Refresh messages to show credentials
+                    } else if (status === 'failed') {
+                        showNotification('❌ Payment failed. Please try again.', 'error');
+                    } else {
+                        showNotification(`⏳ Payment status: ${status}`, 'info');
+                    }
+                } else {
+                    throw new Error(data.error?.message || 'Failed to check payment status');
+                }
+            } catch (error) {
+                showNotification(`Failed to check payment status: ${error.message}`, 'error');
+            }
         }
 
         function selectMiddlemanForPayment(productId) {
             closeModal('paymentModal');
-            // TODO: Show middleman selection and create group chat
-            showNotification('Middleman selection (placeholder)', 'info');
+            
+            // Get product for middleman selection
+            const product = window.currentChatProduct;
+            if (!product || product.id !== productId) {
+                showNotification('Product context not available. Please refresh and try again.', 'error');
+                return;
+            }
+            
+            showMiddlemanSelection(product);
         }
 
         function closeModal(modalId) {
