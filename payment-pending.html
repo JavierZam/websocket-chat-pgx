@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Payment Pending - PasargameX</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+            margin: 0;
+            padding: 40px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            max-width: 500px;
+        }
+        .pending-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #856404;
+            margin-bottom: 15px;
+        }
+        p {
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        .btn {
+            background: #007bff;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 6px;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #ffc107;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="pending-icon">⏳</div>
+        <h1>Payment Pending</h1>
+        <p>Your payment is being processed. This may take a few minutes for bank transfers or other payment methods.</p>
+        
+        <div class="spinner"></div>
+        
+        <p>We'll notify you via chat once your payment is confirmed and credentials are delivered.</p>
+        
+        <a href="modern-chat-test-local.html" class="btn">Return to Chat</a>
+        
+        <p style="font-size: 14px; color: #999; margin-top: 30px;">
+            Your transaction is safe and secure. You can close this page and check back later.
+        </p>
+    </div>
+
+    <script>
+        // Auto redirect after 30 seconds
+        setTimeout(() => {
+            window.location.href = 'modern-chat-test-local.html';
+        }, 30000);
+    </script>
+</body>
+</html>
